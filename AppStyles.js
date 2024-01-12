@@ -1,4 +1,7 @@
-const styles = StyleSheet.create({
+import {StyleSheet} from 'react-native';
+
+
+const appstyles = StyleSheet.create({
     "*": {
       boxSizing: "border-box",
       margin: "0",
@@ -10,7 +13,6 @@ const styles = StyleSheet.create({
       justifyContent: "center",
       alignItems: "center",
       height: "100vh",
-      background: "linear-gradient(135deg, #6dd5ed, #2193b0)"
     },
     ".purchase_box": {
       background: "#ffffff",
@@ -610,4 +612,6 @@ const styles = StyleSheet.create({
     },
     ".button-38:focus-visible": { boxShadow: "none" }
   });
+
+  export default appstyles;
   

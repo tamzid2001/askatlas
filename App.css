@@ -6,13 +6,300 @@
   font-family: 'Arial', sans-serif; /* Choose a modern, readable font */
 }
 
+.lds-ellipsis {
+  display: inline-block;
+  position: relative;
+  width: 10px;
+  height: 10px;
+}
+.lds-ellipsis div {
+  position: absolute;
+  top: 33px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #fff;
+  animation-timing-function: cubic-bezier(0, 1, 1, 0);
+}
+.lds-ellipsis div:nth-child(1) {
+  left: 8px;
+  animation: lds-ellipsis1 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(2) {
+  left: 8px;
+  animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(3) {
+  left: 32px;
+  animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(4) {
+  left: 56px;
+  animation: lds-ellipsis3 0.6s infinite;
+}
+@keyframes lds-ellipsis1 {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes lds-ellipsis3 {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
+}
+@keyframes lds-ellipsis2 {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(24px, 0);
+  }
+}
+
+.send {
+  display: flex;
+  align-items: center;
+  font-size: medium;
+}
+
+.w {
+  display: flex;
+  width: 100% !important;
+  background-color: #ffffff;
+}
+.shape {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #6dd5ed, #2193b0);
+  box-shadow: 0 8px 15px rgba(33, 147, 176, 0.4);
+  margin: 20px;
+  position: absolute;
+  z-index: -1;
+  animation: rotate 5s infinite linear;
+}
+
+.shape::before {
+  content: '';
+  position: absolute;
+  top: -15px;
+  right: -15px;
+  background-color: #fff;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  box-shadow: 0 8px 15px rgba(255, 255, 255, 0.6);
+}
+
+.shape::after {
+  content: '';
+  position: absolute;
+  bottom: -15px;
+  left: -15px;
+  background-color: #fff;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  box-shadow: 0 8px 15px rgba(255, 255, 255, 0.6);
+}
+
+/* Animation */
+@keyframes rotate {
+  0% {
+      transform: rotate(0deg);
+  }
+  100% {
+      transform: rotate(360deg);
+  }
+}
+.mapboxgl-ctrl-pitchtoggle-3d {
+  background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCI+ICAgIDx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkeT0iLjM1ZW0iIHN0eWxlPSJmb250LXNpemU6IDE0cHg7IGZvbnQtZmFtaWx5OiAnSGVsdmV0aWNhIE5ldWUnLEFyaWFsLEhlbHZldGljYSxzYW5zLXNlcmlmOyBmb250LXdlaWdodDogYm9sZDsgdGV4dC1hbmNob3I6IG1pZGRsZTsiPjNEPC90ZXh0Pjwvc3ZnPg==);
+  background-size: contain;
+}
+
+.mapboxgl-ctrl-pitchtoggle-2d {
+  background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCI+ICAgIDx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkeT0iLjM1ZW0iIHN0eWxlPSJmb250LXNpemU6IDE0cHg7IGZvbnQtZmFtaWx5OiAnSGVsdmV0aWNhIE5ldWUnLEFyaWFsLEhlbHZldGljYSxzYW5zLXNlcmlmOyBmb250LXdlaWdodDogYm9sZDsgdGV4dC1hbmNob3I6IG1pZGRsZTsiPjJEPC90ZXh0Pjwvc3ZnPg==);
+  background-size: contain;
+}
+
+.characterLength {
+  color: grey;
+  padding-top: 5px;
+}
+
+.how {
+  font-size: 24px;
+  font-weight: normal !important;
+}
+
+.show {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  background-color: #ffffff;
+}
+
+.showInput {
+  width: 100%;
+}
+/* Neumorphic Design Base */
+:root {
+  --electric-blue: #1e90ff;
+  --neon-coral: #ff7f50;
+  --sleek-charcoal: #464646;
+  --mint-green: #98ff98;
+  --soft-peach: #ffdab9;
+  --pearl-white: #f5f5f5;
+}
+
+/* Profile section and header */
+.profile {
+  text-align: center;
+  /* padding: 20px 20px 0px 20px;
+  border-bottom: 3px solid #000000; */
+}
+
+.header h3 {
+  font-size: 1.5em;
+}
+
+/* Buttons styling */
+.p_button {
+  background: var(--pearl-white);
+  border: none;
+  border-radius: 10px;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2), 
+              -3px -3px 10px rgba(255, 255, 255, 0.8);
+  padding: 10px 10px;
+  margin: 10px;
+  width: calc(100% - 5%);
+  display: block;
+  transition: all 0.3s ease;
+
+}
+
+.instagram {
+  background: #d6249f;
+  background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%,#d6249f 60%,#285AEB 90%);
+}
+.p_button:hover {
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2), 
+              -3px -3px 10px rgba(255, 255, 255, 0.8);
+}
+
+.p_button img.settings {
+  width: 24px;
+  height: 24px;
+  margin-right: 10px;
+}
+.tiktok {
+  background-image: linear-gradient(135deg, #69c9d0 0%, #000000 100%);
+  color: #ffffff; /* White text to stand out against the darker background */
+}
+.tiktok img {
+  width: 24px;
+  height: 24px;
+  margin-right: 10px;
+}
+
+.profile_title_point {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 1.2rem;
+  color: white;
+}
+
+.socialMediaTitle {
+  font-size: 1.5em;
+  color: var(--electric-blue);
+  margin: 20px;
+}
+
+.ai-title {
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  margin-bottom: 1rem;
+
+}
+
+.ai-header {
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  margin-left: '5px';
+
+}
+.signOut {
+  padding: 15px;
+  width: auto;
+  border: none;
+  color: red; /* White text for contrast */
+  font-size: 16px;
+  width: fit-content; /* Full width */
+  cursor: pointer;
+  display: flex;
+  background-color: transparent;
+}
+
+.signoutbuttonbox {
+  display: flex;
+  justify-content: start;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.sign_out_label, .profile_label {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.sign_out_point {
+  margin: 0 auto; /* Center text within the button */
+  font-weight: normal;
+}
+.login-with-google-btn {
+  transition: background-color 0.3s, box-shadow 0.3s;
+  padding: 12px 16px 12px 42px;
+  border: none;
+  border-radius: 3px;
+  box-shadow: 0 -1px 0 rgba(0, 0, 0, .04), 0 1px 1px rgba(0, 0, 0, .25);
+  color: #757575;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48cGF0aCBkPSJNMTcuNiA5LjJsLS4xLTEuOEg5djMuNGg0LjhDMTMuNiAxMiAxMyAxMyAxMiAxMy42djIuMmgzYTguOCA4LjggMCAwIDAgMi42LTYuNnoiIGZpbGw9IiM0Mjg1RjQiIGZpbGwtcnVsZT0ibm9uemVybyIvPjxwYXRoIGQ9Ik05IDE4YzIuNCAwIDQuNS0uOCA2LTIuMmwtMy0yLjJhNS40IDUuNCAwIDAgMS04LTIuOUgxVjEzYTkgOSAwIDAgMCA4IDV6IiBmaWxsPSIjMzRBODUzIiBmaWxsLXJ1bGU9Im5vbnplcm8iLz48cGF0aCBkPSJNNCAxMC43YTUuNCA1LjQgMCAwIDEgMC0zLjRWNUgxYTkgOSAwIDAgMCAwIDhsMy0yLjN6IiBmaWxsPSIjRkJCQzA1IiBmaWxsLXJ1bGU9Im5vbnplcm8iLz48cGF0aCBkPSJNOSAzLjZjMS4zIDAgMi41LjQgMy40IDEuM0wxNSAyLjNBOSA5IDAgMCAwIDEgNWwzIDIuNGE1LjQgNS40IDAgMCAxIDUtMy43eiIgZmlsbD0iI0VBNDMzNSIgZmlsbC1ydWxlPSJub256ZXJvIi8+PHBhdGggZD0iTTAgMGgxOHYxOEgweiIvPjwvZz48L3N2Zz4=');
+  background-color: white;
+  background-repeat: no-repeat;
+  background-position: 12px 11px;
+}
+.login-with-google-btn:hover {
+  box-shadow: 0 -1px 0 rgba(0, 0, 0, .04), 0 2px 4px rgba(0, 0, 0, .25);
+}
+.login-with-google-btn:active {
+  background-color: #eee;
+}
+.login-with-google-btn:focus {
+  outline: none;
+  box-shadow: 0 -1px 0 rgba(0, 0, 0, .04), 0 2px 4px rgba(0, 0, 0, .25), 0 0 0 3px #c8dafc;
+}
 /* General styling for the subscription screen */
 .subscribe-screen {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: linear-gradient(135deg, #6dd5ed, #2193b0); /* A pleasing gradient */
 }
 
 /* Box that holds the plan details and buttons */
@@ -60,10 +347,47 @@
   font-weight: bold;
   margin: 1rem 0; /* Space above and below the label */
 }
+.topBar {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centers the h3 tag */
+  text-align: center; /* Ensures all text is centered */
+  margin: 1rem;
+  margin-top: 0;
+  margin-bottom: 2rem;
+}
 
+h3 {
+  margin: 0;
+  padding: 0;
+  font-size: 1.5rem; /* Adjust size as needed */
+}
+
+.actionButton {
+  padding-left: 10px;
+}
+.descriptionBox {
+  overflow-wrap: break-word; /* Prevents overflow by breaking long words */
+  word-wrap: break-word; /* Deprecated but included for cross-browser support */
+  hyphens: auto; /* Automatically adds hyphens where appropriate */
+  padding: 0 1rem; /* Padding on the sides */
+  margin-top: 1rem; /* Space below the title */
+  text-align: center;
+  height: auto;
+  width: 80vw;
+}
+
+.mapDescription {
+  overflow: auto;
+    text-overflow: clip;
+    white-space: normal;
+    width: 100%;
+    height: fit-content;
+}
 /* Purchase buttons */
 .button-38 {
-  display: block; /* Ensure the button takes the full width */
+  display: flex !important;
+  justify-content: center !important;
   width: 100%;
   padding: 15px;
   margin: 10px 0; /* Vertical spacing between buttons */
@@ -72,7 +396,7 @@
   background-color: #f3f4f6; /* Light background for the button */
   cursor: pointer;
   transition: all 0.3s ease;
-  width: auto;
+  width: 3rem;
 }
 
 .button-38:hover {
@@ -89,7 +413,6 @@
 @media (max-width: 768px) {
   .subscribe-screen {
     height: auto;
-    padding: 20px;
   }
 
   .purchase_box {
@@ -221,8 +544,6 @@ label:active:after {
   border-radius: 0px !important;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   background-color: #ffffff;
-  width: 350px; /* Adjusted width */
-  margin: 2% auto; /* Centers the box with margin from top and bottom */
   background: rgba(255, 255, 255, 0.8);
   padding: 20px;
   border-radius: 10px;
@@ -230,10 +551,10 @@ label:active:after {
   margin: 0;
   padding: 0;
   background-repeat: no-repeat;
-  background-position-y: 120%;
-  background-size: auto;
+  background-size: cover !important;
   width: -webkit-fill-available;
-  background-image: url('./assets/background.png');
+  background-color: #ffffff;
+  /* background-image: url('./assets/background.png'); */
 }
 
 /* Styles for the logo box */
@@ -251,7 +572,7 @@ label:active:after {
 
 .logo_label {
   font-size: 28px; /* Increased size */
-  color: #000000; /* Vibrant blue color */
+  color: #ffffff; /* Vibrant blue color */
   font-weight: bold;
   margin-top: 1rem;
 }
@@ -281,7 +602,7 @@ label:active:after {
   left: 0; /* Align to the left of the viewport */
   width: 100%; /* Full width */
   font-size: 0.75rem; /* Small font size */
-  color: #ffffff; /* Subdued text color for less emphasis */
+  color: #000000; /* Subdued text color for less emphasis */
   text-align: center; /* Center the text within the element */
   padding: 1rem; /* Padding for spacing from the screen edge */
   font-size: 11px;
@@ -295,19 +616,16 @@ label:active:after {
 .google {
   background-color: #DB4437;
   color: white;
-  font-weight: bold;
 }
 
 .facebook {
   background-color: #4267B2;
   color: white;
-  font-weight: bold;
 }
 
 .twitter {
   background-color: #000000;
   color: white;
-  font-weight: bold;
 }
 
 .or {
@@ -332,7 +650,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: start;
-  margin: 10px;
+  margin: 20px;
 }
 
 .details {
@@ -499,7 +817,6 @@ svg {
 .map_functions {
   display: flex;
   justify-content: space-around;
-  padding: 1rem;
 }
 
 /* Style for the action buttons at the bottom */
@@ -550,11 +867,6 @@ svg {
   justify-content: space-between;
   flex-direction: row;
   justify-items: center;
-}
-
-.title_point {
-  margin-left: 1rem !important;
-  font-size: 24px !important;
 }
 
 .profile {
@@ -746,6 +1058,29 @@ svg {
   
 }
 
+.profile_button_box {
+  width: 100%;
+  max-height: 75vh;
+  scroll-behavior: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+/* Premium button with a luxurious gradient */
+.p_button.premium {
+  background-image: linear-gradient(135deg, #fad961 0%, #f76b1c 100%);
+}
+
+/* Share button with an inviting gradient */
+.p_button.share {
+  background-image: linear-gradient(135deg, #8a2387 0%, #e94057 50%, #f27121 100%);
+}
+.s {
+  color: #212121;
+  font-weight: normal;
+  display: flex;
+  align-items: center;
+}
 .profile_button_signout {
   display:flex;
   justify-content: center;
@@ -783,24 +1118,118 @@ svg {
   color: grey;
   margin: 4%;
 }
+.mapContainer {
+  height: 100vh;
+  background-color: #ffffff;
+}
+
+.mapboxgl-ctrl-group {
+  background: #ffffff !important;
+}
+
+a:link { 
+  text-decoration: none !important; 
+} 
+
+a:visited { 
+  text-decoration: none !important; 
+} 
+
+a:hover { 
+  text-decoration: none !important; 
+} 
+
+a:active { 
+  text-decoration: none !important; 
+}
+
+
+.atlasaibutton {
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    border: 0px solid #e1e1e1;
+    border-radius: 8px;
+    background-color: #ffffff;
+    color: #212121;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+.docs {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.shareButton {
+  margin-left: 10px;
+  height: fit-content;
+  display: flex;
+  align-items: center;
+  padding: 5px;
+  border: 0px solid #e1e1e1;
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: #212121;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.deleteButton {
+  height: fit-content;
+  display: flex;
+  align-items: center;
+  padding: 5px;
+  border: 0px solid #e1e1e1;
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: #212121;
+}
+
+.image-gallery-content .image-gallery-slide .image-gallery-image {
+  max-height: 35vh;
+  max-width: 35vh;
+  min-height: 35vh;
+  min-width: 35vh;
+}
+
+.image-gallery-thumbnails {
+  width: 40vh !important;
+}
+/* Main container for the title */
+.titleBox {
+  width: 100%;
+  padding: 20px 5%;
+  border-bottom: 3px solid #000000; /* Solid blue bottom border */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1rem;
+  background-color: #ffffff;
+}
+
+/* Styling for the title */
+.title {
+  font-size: 1.5em; /* Slightly larger font size for visibility */
+  color: #212121; /* Dark color for contrast */
+  text-align: center; /* Center aligns the title */
+  font-weight: normal;
+  display: flex;
+  align-items: center;
+}
+
 /* Container for the entire list of operations */
 .operations {
   display: flex;
   flex-direction: column; /* Stack children vertically */
   overflow-y: auto; /* Enable vertical scrolling */
-  max-height: 60vh; /* Set a maximum height for the scrollable area */
+  max-height: 75vh; /* Set a maximum height for the scrollable area */
   padding: 10px;
+  background-color: #ffffff;
 }
 
 /* Individual box for each map */
 .box {
-  background-color: #f8f9fa; /* Light background color */
-  border: 1px solid #e0e0e0; /* Light grey border */
   border-radius: 8px; /* Rounded corners */
-  margin-bottom: 10px; /* Space between items */
-  padding: 10px; /* Padding inside the box */
   display: flex; /* Use flexbox for alignment */
-  align-items: center; /* Center items vertically */
   gap: 10px; /* Space between icon and text */
 }
 
@@ -900,7 +1329,7 @@ svg {
 
 .map_functions {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: space-between;
   overflow: auto;
   white-space: nowrap;
@@ -922,15 +1351,44 @@ html, body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #ece9e6, #ffffff); /* Warm background gradient */
 }
 
+.stripe {
+  background-image: linear-gradient(135deg, #5433FF 0%, #4379FF 100%);
+}
+
+.animate-charcter
+{
+   text-transform: uppercase;
+  background-image: linear-gradient(
+    -225deg,
+    #231557 0%,
+    #44107a 29%,
+    #ff1361 67%,
+    #fff800 100%
+  );
+  background-size: auto auto;
+  background-clip: border-box;
+  background-size: 200% auto;
+  color: #fff;
+  background-clip: text;
+  text-fill-color: transparent;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: textclip 2s linear infinite;
+  display: inline-block;
+      font-size: 190px;
+}
+
+@keyframes textclip {
+  to {
+    background-position: 200% center;
+  }
+}
 /* Sign-in box styling */
 .signin_box {
   width: 100%;
-  max-width: 400px;
-  margin: 1rem;
-  background-color: #fcfcfc;
+  background-color: #ffffff;
   border-radius: 10px;
   box-shadow: 0 8px 16px rgba(0,0,0,0.1);
   text-align: center;
@@ -941,7 +1399,7 @@ html, body {
 .logo_box .logo_label {
   font-size: 24px;
   margin-bottom: 2rem;
-  color: #333;
+  color: #ffffff;
 }
 
 /* Sign-in button styles */
@@ -976,22 +1434,11 @@ html, body {
 /* Terms of service text */
 .terms_label {
   font-size: 12px;
-  color: #ffffff;
+  color: #212121 !important;
   margin-top: 2rem;
   display: block;
   font-weight: bold;
 }
-
-/* Ensure that the content uses the full screen on smaller devices */
-@media (max-width: 600px) {
-  .signin_box {
-    margin: 0;
-    width: 100%;
-    max-width: none;
-    border-radius: 0;
-  }
-}
-
 
 .intro_box {
   background-color: #000;
@@ -1001,13 +1448,13 @@ html, body {
 
 /* CSS */
 .button-38 {
-  background-color: #FFFFFF;
+  background-color: springgreen;
   border: 0;
-  border-radius: .5rem;
+  border-radius: 2rem;
   box-sizing: border-box;
   color: #111827;
   font-family: "Inter var",ui-sans-serif,system-ui,-apple-system,system-ui,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-  font-size: .875rem;
+  font-size: 1.25rem;
   font-weight: 600;
   line-height: 1.25rem;
   padding: .75rem 1rem;

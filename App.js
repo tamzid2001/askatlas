@@ -1,10 +1,33 @@
-import React, { useRef, useEffect, useState, useCallback } from 'react';
-import {Alert, Modal, StyleSheet, Text, Pressable, View} from 'react-native';
-import { Editor } from '@tinymce/tinymce-react';
+import React, { useRef, useEffect, useState, useCallback, } from 'react';
+import { useSwipeable, UP, DOWN, SwipeEventData } from 'react-swipeable';
+import ImageGallery from "react-image-gallery";
+import "react-image-gallery/styles/css/image-gallery.css";
+import {
+  SafeAreaProvider,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
+import {Alert, Image, Modal, StyleSheet, Text, Pressable, View, TextInput, SafeAreaView} from 'react-native';
+import $ from 'jquery';
+import MapIcon from './assets/mapIcon.png';
+import BillingIcon from './assets/billing.png'
+import Discuss from './assets/discuss.svg'
+import SparklingIcon from './assets/sparkling.png';
+import SendIcon from './assets/send.png';
+import DiceIcon from './assets/dice.png';
+import SparklingIconOutline from './assets/sparklingOutline.png'
+import ShareIcon2 from './assets/shareIcon2.png';
+import WebsiteIcon from './assets/websiteIcon.png';
+import RouteIcon from './assets/routeIcon.png';
 import GlobeMarker from "./assets/globe_marker.png"
 import GoogleIcon from "./assets/google.svg"
+import ShareIcon from "./assets/shareIcon.png"
 import FacebookIcon from "./assets/facebook.svg"
 import TwitterIcon from "./assets/twitter.svg"
+import InstagramIcon from "./assets/instagramIcon.svg";
+import TikTokIcon from "./assets/tiktok.svg"
+import SettingsIcon from "./assets/settingsIcon.svg"
+import MenuIcon from "./assets/menuIcon.png"
+import GlobeIcon from "./assets/globeIcon.png"
 import MapMarker from "./assets/map_marker.png"
 import Settings from './assets/settings.png';
 import AppIcon from "./assets/icon.png";
@@ -28,62 +51,48 @@ import Right from "./assets/chevron-right.png"
 import { NavigationContainer, useRoute } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-//import {IAPErrorCode, InAppPurchases} from 'expo-in-app-purchases';
 import {terms, privacypolicy} from "./termsandprivacy.js"
 import './App.css'
-import { CopySharp, DocumentTextSharp, TrashBinSharp, PeopleSharp, LogoTwitter, LogoFacebook, AddOutline, LocationOutline, ChevronForwardOutline, PeopleCircleOutline, PersonAddOutline, TrashOutline, CheckmarkOutline, LockClosedOutline } from 'react-ionicons'
 import {v4 as uuidv4} from 'uuid';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import './Map.css';
-import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
-import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
-import MapboxLanguage from '@mapbox/mapbox-gl-language';
-//import 'react-map-gl-geocoder/dist/mapbox-gl-geocoder.css'
 mapboxgl.accessToken =
   'pk.eyJ1IjoidGFtbXl3YW1teSIsImEiOiJjbGF2cGZuZTgwN3d1M3ZucHdlNTVwbW1jIn0.IGJDGKvQwt1kt7LgCtuAig';
-// import { 
-//   AdMobBanner, 
-//   AdMobInterstitial, 
-//   PublisherBanner,
-//   AdMobRewarded
-// } from 'react-native-admob'
-//import firebase from 'firebase/app';
-//import 'firebase/firestore';
-
 import { initializeApp, firebase } from 'firebase/app';
 import { onAuthStateChanged, FacebookAuthProvider, OAuthProvider, TwitterAuthProvider, GoogleAuthProvider, getAuth, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut } from "firebase/auth";
-import { getFirestore, query, getDocs, collection, where, addDoc, doc, getDoc, updateDoc, setDoc, onSnapshot } from "firebase/firestore";
-
+import { getFirestore, query, getDocs, collection, where, addDoc, doc, getDoc, updateDoc, setDoc, onSnapshot, arrayUnion, arrayRemove, serverTimestamp } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD7Z87ErYFfFq4qI39wRjzReJtAbugJMBU",
-  authDomain: "grape-c45e3.firebaseapp.com",
-  projectId: "grape-c45e3",
-  storageBucket: "grape-c45e3.appspot.com",
-  messagingSenderId: "1030833092872",
-  appId: "1:1030833092872:web:21de7452e76e1be41b14bd",
-  measurementId: "G-Q5889T84P6"
+  apiKey: "AIzaSyAz5xN37WxbRT6DyW6mQxD700dlpXGTQns",
+  authDomain: "mapmyconcern.firebaseapp.com",
+  projectId: "mapmyconcern",
+  storageBucket: "mapmyconcern.appspot.com",
+  messagingSenderId: "981359555560",
+  appId: "1:981359555560:web:309a9778efa597dffdea5d",
+  measurementId: "G-22HJ6GSR49"
 };
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
-console.log(auth);
 
 const styles = StyleSheet.create({
   centeredView: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
     alignItems: 'center',
     marginTop: 0,
   },
   modalView: {
     margin: 0,
-    width: '100%',
-    height: '100vh',
-    backgroundColor: 'white',
-    borderRadius: 0,
+    width: '95%',
+    height: 'fit-content',
+    backgroundColor: '#ffffff',
+    borderTopLeftRadius: '1rem',
+    borderTopRightRadius: '1rem',
     padding: 35,
+    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.6), 0 1px 2px 0 rgba(0, 0, 0, 0.06);', /* Soft box shadow */
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
@@ -104,10 +113,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#F194FF',
   },
   buttonClose: {
-    backgroundColor: '#2196F3',
+    backgroundColor: '#ffffff', /* Clear white background */
+    border: '1px solid #ced4da', /* Updated to a more subtle gray */
+    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)', /* Soft box shadow */
+    transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
+    borderRadius: '2rem',
+
   },
   textStyle: {
-    color: 'white',
+    color: 'black',
     fontWeight: 'bold',
     textAlign: 'center',
   },
@@ -115,206 +129,264 @@ const styles = StyleSheet.create({
     marginBottom: 0,
     textAlign: 'center',
   },
+  input: {
+    margin: 'auto',
+    marginLeft: '5px',
+    width: '100%',
+    padding: '1rem',
+    border: '1px solid #ced4da', /* Updated to a more subtle gray */
+    borderRadius: '1rem',
+    fontSize: '16px', /* Improved readability */
+    color: '#495057', /* Modern, neutral text color */
+    backgroundColor: '#ffffff', /* Clear white background */
+    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)', /* Soft box shadow */
+    transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
+},
+titleBox: {
+  display: 'flex',
+  flexDirection: 'row',
+  justifyContent: 'center',
+  alignItems: 'baseline',
+  width: '100%',
+  margin: '1rem',
+},
 });
-// import * as Device from 'expo-device';
-// import * as Notifications from 'expo-notifications';
-// import Constants from 'expo-constants';
 
-// Notifications.setNotificationHandler({
-//   handleNotification: async () => ({
-//     shouldShowAlert: true,
-//     shouldPlaySound: false,
-//     shouldSetBadge: false,
-//   }),
-// });
-
-// // Can use this function below or use Expo's Push Notification Tool from: https://expo.dev/notifications
-// async function sendPushNotification(expoPushToken) {
-//   const message = {
-//     to: expoPushToken,
-//     sound: 'default',
-//     title: 'Original Title',
-//     body: 'And here is the body!',
-//     data: { someData: 'goes here' },
-//   };
-
-//   await fetch('https://exp.host/--/api/v2/push/send', {
-//     method: 'POST',
-//     headers: {
-//       Accept: 'application/json',
-//       'Accept-encoding': 'gzip, deflate',
-//       'Content-Type': 'application/json',
-//     },
-//     body: JSON.stringify(message),
-//   });
-// }
-
-// async function registerForPushNotificationsAsync() {
-//   let token;
-
-//   if (Platform.OS === 'android') {
-//     Notifications.setNotificationChannelAsync('default', {
-//       name: 'default',
-//       importance: Notifications.AndroidImportance.MAX,
-//       vibrationPattern: [0, 250, 250, 250],
-//       lightColor: '#FF231F7C',
-//     });
-//   }
-
-//   if (Device.isDevice) {
-//     const { status: existingStatus } = await Notifications.getPermissionsAsync();
-//     let finalStatus = existingStatus;
-//     if (existingStatus !== 'granted') {
-//       const { status } = await Notifications.requestPermissionsAsync();
-//       finalStatus = status;
-//     }
-//     if (finalStatus !== 'granted') {
-//       alert('Failed to get push token for push notification!');
-//       return;
-//     }
-//     token = await Notifications.getExpoPushTokenAsync({
-//       projectId: Constants.expoConfig.extra.eas.projectId,
-//     });
-//     console.log(token);
-//   } else {
-//     alert('Must use physical device for Push Notifications');
-//   }
-
-//   return token;
-// }
-// function displayAd() {
-//   AdMobInterstitial.setAdUnitID('your-admob-unit-id');
-//   AdMobInterstitial.setTestDeviceID('EMULATOR');
-//   AdMobInterstitial.requestAd(AdMobInterstitial.showAd);
-// }
-const MapScreen = ({navigation}) => {
-  const editorRef = useRef(null);
-  const log = () => {
-    if (editorRef.current) {
-      console.log(editorRef.current.getContent());
-    }
-  };
+const MapScreen = ({navigation, route}) => {
+  //console.log(route.params);
+  const [userMapList,setMapList] = useState(route.params);
+  const [images, setImages] = useState(route.params)
   const mapContainerRef = useRef(null);
-  const cRef = useRef(null);
+  const map = useRef(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalVisible2, setModalVisible2] = useState(false);
+  const [data, setData] = useState({});
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
   const [lng, setLng] = useState(5);
   const [lat, setLat] = useState(34);
   const [zoom, setZoom] = useState(1.5);
-  const [file, setFile] = useState();
   const [id,setid] = useState('');
   const [mk, setmk] = useState(null);
-  const [list,setList] = useState(undefined)
+  const [list,setList] = useState(undefined);
+  const [disabled, setDisabled] = useState(false);
+  //setData(route.params);
+  function findAncestor(el) {
+    console.log("hello")
+    if(el.id.length != "") {
+      findAncestor(el.parentElement);
+    } else {
+      return el;
+    }
+  }
+  if(route.params != undefined){
+    const f = route.params.list;
+    console.log(f);
+    console.log(route.params.id);
+    var index = parseInt(route.params.id);
+    var mapList = f[index].geo[0].features;
+    console.log(mapList);
+    for(var i=0; i<mapList.length;i++){
+      console.log(mapList[i].properties.images);
+      // var img = [];
+      // for(var j = 0;j<mapList[i].properties.images.length;j++) {
+      //   img.push({original: mapList[i].properties.images[j].urls.regular, thumbnail: mapList[i].properties.images[j].urls.thumbnail});
+      // }
+    const marker = new mapboxgl.Marker({
+      color: "#FF0FFF",
+      draggable: false,
+      anchor: 'center'
+      }).setLngLat([mapList[i].geometry.coordinates[0],mapList[i].geometry.coordinates[1]])
+      .addTo(map.current);
+      marker.getElement().id = `${mapList[i].properties.id}`;
+      marker.getElement().setAttribute('data-images', JSON.stringify(mapList[i].properties.images))
+      marker.getElement().setAttribute('data-x', `${mapList[i].properties.title}_${mapList[i].properties.description}_${mapList[i].geometry.coordinates[0]}_${mapList[i].geometry.coordinates[1]}`);
+      marker.getElement().addEventListener('click', (event) => {
+        const r = event.target.parentElement.parentElement;
+        // console.log(r.id);
+        // console.log(event.target.parentElement.parentElement);
+        var t = document.getElementById(`${r.id}`);
+        const g = t.getAttribute('data-x').split('_');
+        const y = t.getAttribute('data-images');
+        setImages(JSON.parse(y));
+        const target = {
+          center: [parseInt(g[2]), parseInt(g[3])],
+          zoom: 6,
+          bearing: 130,
+          pitch: 75
+          };
+        map.current.flyTo({
+          ...target, // Fly to the selected target
+          duration: 5000, // Animate over 12 seconds
+          essential: true // This animation is considered essential with
+          //respect to prefers-reduced-motion
+          });
+        setTitle(g[0]);
+        setDescription(g[1]);
+        event.preventDefault();
+        setmk(marker);
+        setModalVisible2(true);
+    });
+  }
+  }
+//   {
+//     "title": "Exploring the Wonders of the Great Barrier Reef",
+//     "description": "Discover the vibrant marine life and breathtaking coral formations of the Great Barrier Reef, a UNESCO World Heritage Site.",
+//     "geo": [
+//         {
+//             "type": "FeatureCollection",
+//             "features": [
+//                 {
+//                     "type": "Feature",
+//                     "properties": {
+//                         "title": "Heart Reef",
+//                         "description": "Marvel at the unique heart-shaped coral formation, a symbol of love and a popular destination for snorkeling and diving.",
+//                         "id": "1",
+//                         "message": "The Heart Reef is a popular spot for marriage proposals and vow renewals, due to its romantic shape.",
+//                         "iconSize": [
+//                             60,
+//                             60
+//                         ]
+//                     },
+//                     "geometry": {
+//                         "type": "Point",
+//                         "coordinates": [
+//                             149.1481,
+//                             -19.9186
+//                         ]
+//                     }
+//                 },
+//                 {
+//                     "type": "Feature",
+//                     "properties": {
+//                         "title": "Lady Elliot Island",
+//                         "description": "Explore the pristine coral gardens and encounter manta rays, turtles, and a diverse array of marine life.",
+//                         "id": "2",
+//                         "message": "Lady Elliot Island is home to the largest population of manta rays in the world.",
+//                         "iconSize": [
+//                             60,
+//                             60
+//                         ]
+//                     },
+//                     "geometry": {
+//                         "type": "Point",
+//                         "coordinates": [
+//                             153.1289,
+//                             -24.1403
+//                         ]
+//                     }
+//                 },
+//                 {
+//                     "type": "Feature",
+//                     "properties": {
+//                         "title": "Green Island",
+//                         "description": "Immerse yourself in the vibrant underwater world, teeming with colorful coral and tropical fish.",
+//                         "id": "3",
+//                         "message": "Green Island is a popular destination for day trips from Cairns, offering a variety of snorkeling and diving experiences.",
+//                         "iconSize": [
+//                             60,
+//                             60
+//                         ]
+//                     },
+//                     "geometry": {
+//                         "type": "Point",
+//                         "coordinates": [
+//                             146.1567,
+//                             -16.75
+//                         ]
+//                     }
+//                 }
+//             ]
+//         }
+//     ]
+// }
+
+  const handlers = useSwipeable({
+    onSwipedDown: () => {setModalVisible(!modalVisible);},
+  });
+  const handlers2 = useSwipeable({
+    onSwipedDown: () => {setModalVisible2(!modalVisible2);},
+  });
   var currentMarkers = [];
-  const geojson = {
-    'type': 'FeatureCollection',
-    'features': [
-    {
-      'type': 'Feature',
-      'geometry': {
-        'type': 'Point',
-        'coordinates': [-66.324462, -16.024695]
-      },
-      'properties': {
-        'message': 'Foo',
-        'iconSize': [60, 60],
-        'id': '3',
-        'color': '#000000'
-    }
-    },
-    {
-      'type': 'Feature',
-      'properties': {
-        'message': 'Bar',
-        'id': '2',
-        'iconSize': [50, 50]
-      },
-      'geometry': {
-        'type': 'Point',
-        'coordinates': [-61.21582, -15.971891]
-      }
-    },
-    {
-      'type': 'Feature',
-      'properties': {
-      'message': 'Baz',
-      'id': '1',
-      'iconSize': [40, 40]
-      },
-      'geometry': {
-      'type': 'Point',
-      'coordinates': [-63.292236, -18.281518]
-      }
-    }
-    ]
-    
-};
 
 let [geoJson, setgeo] = useState({type: 'FeatureCollection', features: []});
-const mapRef = useRef(null);
+let [text, setText] = useState('');
   // Initialize map when component mounts
   useEffect(async() => {
-    await getDoc(doc(db, "users", auth.currentUser.uid)).then((doc) => {
-      console.log(doc.data().data[0].geo[0]);
-      setgeo(doc.data().data[0].geo[0]);
-      return doc.data().data[0].geo[0];
-    }).catch((error) => {
-      console.log("Error getting document:", error);
-    });
+    // await getDoc(doc(db, "users", auth.currentUser.uid)).then((doc) => {
+    //   console.log(doc.data().data[0].geo[0]);
+    //   setgeo(doc.data().data[0].geo[0]);
+    //   return doc.data().data[0].geo[0];
+    // }).catch((error) => {
+    //   console.log("Error getting document:", error);
+    // });
     //setgeo(userRef);
     //console.log(geoJson);
-    const map = new mapboxgl.Map({
-      container: "map",
-      style: 'mapbox://styles/mapbox/streets-v12',
+    // if(route.params != undefined){
+    //   const f = route.params.list;
+    //   console.log(f);
+    //   for(var i=0; i<f.length;i++){
+    //   const marker = new mapboxgl.Marker({
+    //     color: "#FF0FFF",
+    //     draggable: false,
+    //     anchor: 'center'
+    //     }).setLngLat([f[i].longitude,f[i].latitude])
+    //     .addTo(map.current);
+    //     //marker.getElement().setAttribute('id', `${x.geo[0].features[i].properties.id}`);
+    //     marker.getElement().setAttribute('data-id', `0_${f[i][3]}_${f[i][4]}_${pd}`);
+    //     marker.getElement().addEventListener('click', (event) => {
+    //       //setid(geojson.features[ci].properties.id);
+    //       setTitle("Hello");
+    //       setDescription("Hello");
+    //       event.preventDefault();
+    //       setmk(marker);
+    //       setModalVisible2(true);
+    //   });
+    // }
+    // }
+    if(map.current) return;
+    map.current = new mapboxgl.Map({
+      container: mapContainerRef.current,
+      style: 'mapbox://styles/mapbox/satellite-streets-v12',
       center: [lng, lat],
       zoom: zoom
     });
-    mapRef.current = map;
-    map.on('move', () => {
-      setLng(map.getCenter().lng.toFixed(4));
-      setLat(map.getCenter().lat.toFixed(4));
-      setZoom(map.getZoom().toFixed(2));
+    map.current.on('style.load', () => {
+      // Custom atmosphere styling
+      // map.current.setFog({
+      // 'color': 'rgb(220, 159, 159)', // Pink fog / lower atmosphere
+      // 'high-color': 'rgb(36, 92, 223)', // Blue sky / upper atmosphere
+      // 'horizon-blend': 0.4 // Exaggerate atmosphere (default is .1)
+      // });
+       
+      map.current.addSource('mapbox-dem', {
+      'type': 'raster-dem',
+      'url': 'mapbox://mapbox.terrain-rgb'
+      });
+       
+      map.current.setTerrain({
+      'source': 'mapbox-dem',
+      'exaggeration': 1.5
+      });
+      });
+    const scale = new mapboxgl.ScaleControl({
+      maxWidth: 80,
+      unit: 'imperial'
+      });
+      map.current.addControl(scale);
+
+    map.current.on('move', () => {
+      setLng(map.current.getCenter().lng.toFixed(4));
+      setLat(map.current.getCenter().lat.toFixed(4));
+      setZoom(map.current.getZoom().toFixed(2));
     });
-    map.on('click', (event) => {
-      //event.preventDefault();
-      console.log(event.target._markers);
-      var coordinates = event.lngLat;
-      const marker = new mapboxgl.Marker({
-        color: "#FF0FFF",
-        draggable: true,
-        anchor: 'center'
-        }).setLngLat([coordinates.lat,coordinates.lng])
-        .addTo(map);
-        marker.getElement().setAttribute('data-id', '0')
-        marker.getElement().addEventListener('click', (event) => {
-          
-          //setid(geojson.features[ci].properties.id);
-          event.preventDefault();
-          setmk(marker);
-          setModalVisible(true);
-        });
-        currentMarkers.push(marker);
+    map.current.on('click', (event) => {
+
     })
-    map.on('load', () => {
-      var ci = 0;
-      for(var i=0;i<geoJson.features.length;i++){
-        ci = i;
-        const marker = new mapboxgl.Marker({
-          color: geoJson.features[i].properties.color,
-          draggable: false
-        }).setLngLat(geoJson.features[i].geometry.coordinates)
-          .addTo(map);
-            marker.getElement().setAttribute('data-id', '0');
-            marker.getElement().classList.add('marker-1234');
-            marker.getElement().addEventListener('click', (event) => {
-            setid(geoJson.features[ci].properties.id);
-            event.preventDefault();
-            setmk(marker);
-            setModalVisible(true);
-          });
-          currentMarkers.push(marker);
-      }
+    map.current.on('load', () => {
+
     })
-    map.addControl(new mapboxgl.GeolocateControl({
+    map.current.addControl(new mapboxgl.GeolocateControl({
       positionOptions: {
           enableHighAccuracy: true
       },
@@ -324,284 +396,100 @@ const mapRef = useRef(null);
   const nav = new mapboxgl.NavigationControl({
     visualizePitch: true
 });
-map.addControl(nav, 'bottom-right');
-map.addControl(
-  new MapboxGeocoder({
-  accessToken: mapboxgl.accessToken,
-  mapboxgl: mapboxgl
-  }), "top-left"
-  );
-  const language = new MapboxLanguage();
-  map.addControl(language);
-
-  //button to create markers from prompts given to chatgpt
-  class HomeButton {
-    onAdd(map) {
-      const div = document.createElement("div");
-      div.className = "mapboxgl-ctrl mapboxgl-ctrl-group";
-      div.innerHTML = `<button>
-        
-      <img width="29px" height="29px" class="ai"/>    
-   </button>`;
-      div.addEventListener("contextmenu", (e) => e.preventDefault());
-      div.addEventListener("click", () => {
-        //map.flyTo(homePosition)
-        
-        const marker = new mapboxgl.Marker({
-          color: "#FF0FFF",
-          draggable: true,
-          anchor: 'center'
-          }).setLngLat([lat,lng])
-          .addTo(map);
-        map.on('move', () => {
-          setLng(map.getCenter().lng.toFixed(4));
-          setLat(map.getCenter().lat.toFixed(4));
-          setZoom(map.getZoom().toFixed(2));
-        });
-
-        function onDragEnd() {
-          const lngLat = marker.getLngLat();
-          const randID = "";
-          setModalVisible(true);
-          marker.getElement().setAttribute('data-id', randID)
-          marker.getElement().addEventListener('click', () => {
-            setid();
-            setModalVisible(true);
-          });
-          marker.setDraggable(false);
-          return;
-          }
-           
-          marker.on('dragend', onDragEnd);
-      
-      });
-
-      return div;
-    }
-  }
-  const homeButton = new HomeButton();
-  map.addControl(homeButton, "top-right");
-  for(var i=0;i<geoJson.features.length;i++){
-    // Set marker options.
-    const marker = new mapboxgl.Marker({
-      color: geoJson.features[i].properties.color,
-      draggable: false
-    }).setLngLat(geoJson.features[i].geometry.coordinates)
-      .addTo(map);
-
-      marker.getElement().setAttribute('data-id', '0')
-      marker.getElement().addEventListener('click', (event) => {
-        setid(geoJson.features[i].properties.id);
-        event.preventDefault();
-        setmk(marker);
-        setModalVisible(true);
-      });
-      currentMarkers.push(marker);
-  }
-  }, geoJson); //eslint-disable-line react-hooks/exhaustive-deps
-  //console.log(geoJson);
-    function deleteMarker() {
-      mk.remove();
-      setmk(null);
-      //const i = data.findIndex(mI)
-      if(i > 0) {
-        //remove from data, rerender
-      }
-    }
-    // function handleColor(color, event) {
-    //   const i = geojson.findIndex(id);
-    //   geojson[i].geo.features.properties.color = color;
-    // }
-    const handleChangeComplete = (color, event) => {
-      mk.color = color.hex;
-      mk.remove();
-      for(var z = 0; z < geojson.features.length;z++){
-        if(geojson.features[z].properties.id == setid){
-            // Add an element to the dictionary
-            geojson.features[z].properties.color = color.hex;
-            setgeo(geojson);
-            break; // If you want to break out of the loop once you've found a match
-        }
-    }
-    for (var i = currentMarkers.length - 1; i >= 0; i--) {
-      currentMarkers[i].remove();
-    }
-    currentMarkers = [];
-    for(var i=0;i<geoJson.features.length;i++){
-      // Set marker options.
-      const marker = new mapboxgl.Marker({
-        color: geoJson.features[i].properties.color,
-        draggable: false
-      }).setLngLat(geoJson.features[i].geometry.coordinates)
-        .addTo(map);
-
-        marker.getElement().setAttribute('data-id', '0')
-        marker.getElement().addEventListener('click', (event) => {
-          setid(geoJson.features[i].properties.id);
-          event.preventDefault();
-          setmk(marker);
-          setModalVisible(true);
-        });
-        currentMarkers.push(marker);
-    }
-      console.log(mk);
-    };
+  map.current.addControl(nav, 'bottom-right');
+ 
+  }, []); //eslint-disable-line react-hooks/exhaustive-deps
+    
   return (
     <div>
       <div className='map-container' id="map" ref={mapContainerRef} />
       <>
-      <Modal
-        animationType="slide"
-        transparent={false}
-        visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible);
-        }}>
-            <>
-            <Editor
-        apiKey='your-api-key'
-        onInit={(evt, editor) => editorRef.current = editor}
-        initialValue="<p>This is the initial content of the editor.</p>"
-        init={{
-          height: 500,
-          menubar: false,
-          plugins: [
-            'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
-            'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-            'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
-          ],
-          toolbar: 'undo redo | blocks | ' +
-            'bold italic forecolor | alignleft aligncenter ' +
-            'alignright alignjustify | bullist numlist outdent indent | ' +
-            'removeformat | help',
-          content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
-        }}
-      />
-      {/* <div class="info_box">
-        <p class="last-edited">Last edited: 12/30/2022</p>
-        <p class="last-edited">Place</p>
-        <p class="last-edited">Long,Lat</p>
-        <p class="last-edited">elevation</p>
-      </div> */}
-      <div class="delete_point">
-        <button class="button-38" onClick="deleteMarker()">Delete</button>
-        <Pressable
-              style={[styles.button, styles.buttonClose]}
-              onPress={() => setModalVisible(!modalVisible)}>
-              <Text style={styles.textStyle}>Close</Text>
-        </Pressable>
-      </div>
-            </>
-          </Modal>
+          <Modal
+              {...handlers2}
+              animationType="slide"
+              transparent={true}
+              visible={modalVisible2}
+              onRequestClose={() => {
+                setModalVisible2(!modalVisible2);
+              }}>
+                <>
+                <View style={styles.centeredView}>
+                  <View style={styles.modalView}>
+                    <div className="topBar">
+                    <div>
+                        <h3>{title}</h3>
+                      </div>
+                    <div style={styles.titleBox}>
+                    <ImageGallery      
+                    showIndex={false}
+                    showBullets={true}
+                    infinite={true}
+                    showThumbnails={true}
+                    showFullscreenButton={true}
+                    showGalleryFullscreenButton={true}
+                    showPlayButton={true}
+                    showGalleryPlayButton={true}
+                    showNav={true}
+                    isRTL={false}
+                    originalHeight={100}
+                    originalWidth={100}
+                    slideDuration={450}
+                    slideInterval={2000}
+                    slideOnThumbnailOver={false}
+                    thumbnailPosition="bottom"
+                    showVideo={false}
+                    useWindowKeyDown={true} 
+                    items={images} />
+                {/* <Pressable
+                    style={[styles.button, styles.buttonClose]}
+                    onPress={() => setModalVisible(!modalVisible)}>
+                    <Text style={styles.textStyle}><svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="30" height="30" viewBox="0 0 30 30">
+    <path d="M 7 4 C 6.744125 4 6.4879687 4.0974687 6.2929688 4.2929688 L 4.2929688 6.2929688 C 3.9019687 6.6839688 3.9019687 7.3170313 4.2929688 7.7070312 L 11.585938 15 L 4.2929688 22.292969 C 3.9019687 22.683969 3.9019687 23.317031 4.2929688 23.707031 L 6.2929688 25.707031 C 6.6839688 26.098031 7.3170313 26.098031 7.7070312 25.707031 L 15 18.414062 L 22.292969 25.707031 C 22.682969 26.098031 23.317031 26.098031 23.707031 25.707031 L 25.707031 23.707031 C 26.098031 23.316031 26.098031 22.682969 25.707031 22.292969 L 18.414062 15 L 25.707031 7.7070312 C 26.098031 7.3170312 26.098031 6.6829688 25.707031 6.2929688 L 23.707031 4.2929688 C 23.316031 3.9019687 22.682969 3.9019687 22.292969 4.2929688 L 15 11.585938 L 7.7070312 4.2929688 C 7.5115312 4.0974687 7.255875 4 7 4 z"></path>
+</svg></Text>
+              </Pressable> */}
+              </div>
+              <div className='descriptionBox'>
+                <p className="mapDescription">
+                  {description}
+                </p>
+              </div>
+              </div>
+              <div class="map_points">
+              {/* <div class="map_functions">
+                <button class="button-38" role="button" onClick={()=>{console.log("clicked")}}>
+                    <div class="map_point_label">
+                    <img src={WebsiteIcon} style={{width:"30px",height:"30px"}}/>
+                    <p className='actionButton'>
+                    Website
+                    </p>
+                    </div> 
+                </button>
+                <button class="button-38" role="button" onClick={()=>{console.log("clicked")}}>
+                    <div class="map_point_label">
+                    <img src={RouteIcon} style={{width:"30px",height:"30px"}}/>
+                    <p className='actionButton'>Navigate</p>  
+                    </div> 
+                </button>
+              </div> */}
+              </div>
+                </View>
+                </View>
+              </>
+            </Modal>
           </>
           </div>
   );
 };
-async function addPoint() {
-
-}
-
-async function addMap() {
-  const querySnapshot = await getDocs(collection(db, "users"));
-  querySnapshot.forEach((doc) => {
-    console.log(`${doc.id} => ${doc.data()}`);
-  });
-}
-
-// Set purchase listener
-// setPurchaseListener(({ responseCode, results, errorCode }) => {
-//   // Purchase was successful
-//   if (responseCode === IAPResponseCode.OK) {
-//     results.forEach(purchase => {
-//       if (!purchase.acknowledged) {
-//         console.log(`Successfully purchased ${purchase.productId}`);
-//         // Process transaction here and unlock content...
-
-//         // Then when you're done
-//         finishTransactionAsync(purchase, true);
-//       }
-//     });
-//   } else if (responseCode === IAPResponseCode.USER_CANCELED) {
-//     console.log('User canceled the transaction');
-//   } else if (responseCode === IAPResponseCode.DEFERRED) {
-//     console.log('User does not have permissions to buy but requested parental approval (iOS only)');
-//   } else {
-//     if(errorCode === IAPErrorCode.UNKNOWN) {
-      
-//     } else if(errorCode === IAPErrorCode.PAYMENT_INVALID) {
-
-//     } else if(errorCode === IAPErrorCode.SERVICE_DISCONNECTED) {
-
-//     } else if(errorCode === IAPErrorCode.SERVICE_UNAVAILABLE) {
-
-//     } else if(errorCode === IAPErrorCode.SERVICE_TIMEOUT) {
-
-//     } else if(errorCode === IAPErrorCode.BILLING_UNAVAILABLE) {
-
-//     } else if(errorCode === IAPErrorCode.ITEM_UNAVAILABLE) {
-
-//     } else if(errorCode === IAPErrorCode.DEVELOPER_ERROR) {
-
-//     } else if(errorCode === IAPErrorCode.ITEM_ALREADY_OWNED) {
-
-//     } else if(errorCode === IAPErrorCode.ITEM_NOT_OWNED) {
-
-//     } else if(errorCode === IAPErrorCode.CLOUD_SERVICE) {
-
-//     } else if(errorCode === IAPErrorCode.PRIVACY_UNACKNOWLEDGED) {
-
-//     } else if(errorCode === IAPErrorCode.UNAUTHORIZED_REQUEST) {
-
-//     } else if(errorCode === IAPErrorCode.INVALID_IDENTIFIER) {
-
-//     } else if(errorCode === IAPErrorCode.MISSING_PARAMS) {
-
-//     }
-//     console.warn(`Something went wrong with the purchase. Received errorCode ${errorCode}`);
-//   }
-// });
-
-// async function ProductItems() {
-//   const items = Platform.select({
-//     ios: [
-//       'dev.products.gas',
-//       'dev.products.premium',
-//       'dev.products.gold_monthly',
-//       'dev.products.gold_yearly',
-//     ],
-//     android: ['gas', 'premium', 'gold_monthly', 'gold_yearly'],
-//   });
-  
-//    // Retrieve product details
-//   const { responseCode, results } = await getProductsAsync(items);
-//   if (responseCode === IAPResponseCode.OK) {
-//     setProducts({ items: results });
-//   }
-// }
-
 
 function SignIn() {
 
   async function Initialize(user) {
-    //console.log(user.uid);
+    console.log(user);
+    const exist = await getDoc(doc(db, 'users', user.uid));
+    if(!exist.exists){
     const usersRef = await setDoc(doc(db, 'users', user.uid), {
       email: user.email,
-      data: [{
-        "name": "",
-        "geo": [{
-        'type': 'FeatureCollection',
-        'features': [{
-          'type': 'Feature',
-          'properties': {
-            'message': 'Foo',
-            'iconSize': [60, 60]
-        },
-          'geometry': {
-            'type': 'Point',
-            'coordinates': [-66.324462, -16.024695]
-          }
-        }]}]
-    }],
+      data: '[]',
       lastLoggedIn: "",
       isPremium: false 
     }).then((res) => {
@@ -611,6 +499,7 @@ function SignIn() {
       console.log(err);
       return err;
     });
+    }
   }
   //const auth = getAuth(app);
   const signInWithGoogle = async () => {
@@ -655,95 +544,17 @@ function SignIn() {
     });
   }
 
-const signInWithFacebook = async () => {
-  const provider = new FacebookAuthProvider();
-    await signInWithPopup(auth, provider)
-    .then((result) => {
-      // The signed-in user info.
-      const user = result.user;
-  
-      // This gives you a Facebook Access Token. You can use it to access the Facebook API.
-      const credential = FacebookAuthProvider.credentialFromResult(result);
-      const accessToken = credential.accessToken;
-  
-      // IdP data available using getAdditionalUserInfo(result)
-      // ...
-    })
-    .catch((error) => {
-      // Handle Errors here.
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      // The email of the user's account used.
-      const email = error.customData.email;
-      // The AuthCredential type that was used.
-      const credential = FacebookAuthProvider.credentialFromError(error);
-  
-      // ...
-    });
-}
-
-const signInWithTwitter = async () => {
-  const provider = new TwitterAuthProvider();
-  await signInWithPopup(auth, provider)
-  .then((result) => {
-    // This gives you a the Twitter OAuth 1.0 Access Token and Secret.
-    // You can use these server side with your app's credentials to access the Twitter API.
-    const credential = TwitterAuthProvider.credentialFromResult(result);
-    const token = credential.accessToken;
-    const secret = credential.secret;
-
-    // The signed-in user info.
-    const user = result.user;
-    console.log(user);
-    result.user.getIdToken().then((idToken)=>{
-    // ...
-    // fetch("/sessionLogin", {
-    //   method: "POST",
-    //   headers: {
-    //   Accept: "application/json",
-    //   "Content-Type": "application/json",
-    //   "CSRF-Token": Cookies.get("XSRF-TOKEN"),
-    //   },
-    //   body: JSON.stringify({ idToken }),
-    // });
-    return idToken;
-  });
-    // IdP data available using getAdditionalUserInfo(result)
-    // ...
-  }).catch((error) => {
-    // Handle Errors here.
-    const errorCode = error.code;
-    const errorMessage = error.message;
-    // The email of the user's account used.
-    const email = error.customData.email;
-    // The AuthCredential type that was used.
-    const credential = TwitterAuthProvider.credentialFromError(error);
-    // ...
-  });
-}
-
   return (
     <>
       <div class="signin_box">
         <div class="logo_box">
         <img src={AppIcon} style={{width:"5rem",height:"5rem"}}/>
-        <p class="logo_label">Prompt Your World</p>
-          <p class="logo_label">Sign In <span className="or">or</span> Sign Up</p>
+        <p class="logo_label animate-charcter">Ask Atlas About Your World</p>
         </div>
         <div className="signin_button_box">
-          <button className="sign-in google" onClick={signInWithGoogle}>
-            <img src={GoogleIcon} style={{width:"30px",height:"30px"}}/>
+          <button className="login-with-google-btn" onClick={signInWithGoogle}>
+            {/* <img src={GoogleIcon} style={{width:"30px",height:"30px"}}/> */}
             Continue with Google</button>
-        </div>
-        <div class="signin_button_box">
-          <button className="sign-in facebook" onClick={signInWithFacebook}>
-            <img src={FacebookIcon} style={{width:"30px",height:"30px"}}/>
-            Continue with Facebook</button>
-        </div>
-        <div class="signin_button_box">
-          <button className="sign-in twitter" onClick={signInWithTwitter}>
-            <img src={TwitterIcon} style={{width:"30px",height:"30px"}}/>
-            Continue with X</button>
         </div>
           <p class="terms_label">By continuing you accept the <a href="">terms of use</a> and <a href="">privacy policy</a></p>
       </div>
@@ -756,200 +567,106 @@ const Tab = createBottomTabNavigator();
 
 function MyTabs() {
   return (
+    <SafeAreaProvider>
     <NavigationContainer>
       <Tab.Navigator
         initialRouteName="Home"
         screenOptions={{
-          tabBarActiveTintColor: '#ffffff00',
-          headerShown: true,
+          headerShown: false,
           headerTransparent: false,
+          tabBarShowLabel: true,
           tabBarStyle: {
-            height: '4rem',
-            borderTopColor: '#ffffff00',
-            backgroundColor: '#ffffff00',
-            borderRadius: '0.5rem',
-            margin: '0.5rem',
-            position: 'absolute',
-            overflow: 'hidden',
+            backgroundColor: '#ffffff',
           },
+          tabBarActiveTintColor: "#000000",
+          tabBarInactiveTintColor: "#000000",
         }}
       >
         <Tab.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <img src={ContentIcon} style={{ width: "40px", height: "40px" }} />
-            ),
-
-          }}
-        />
-        <Tab.Screen
-        name="Map"
+        name="Atlas"
           component={MapScreen}
           options={{
             tabBarIcon: ({ color, size }) => (
-              <img src={Globe} style={{ width: "40px", height: "40px" }} />
+              <img src={GlobeIcon} style={{ width: "24px", height: "24px" }} />
             ),
-            headerShown: false
+            headerShown: false,
+            headerStyle: {
+              backgroundColor: '#ffffff',
+            },
+            headerLeft: () => (
+              <img src={GlobeIcon} style={{ width: "24px", height: "24px", marginLeft: "5px"}} />
+            )
           }}
         />
         <Tab.Screen
-            name="Profile"
+          name="Log"
+          component={HomeScreen}
+          options={{
+            tabBarIcon: ({ color, size }) => (
+              <img src={SparklingIconOutline} style={{ width: "24px", height: "24px",}} />
+            ),
+            headerShown: false,
+            headerStyle: {
+              backgroundColor: '#ffffff',
+            },
+            headerLeft: () => (
+              <img src={SparklingIconOutline} style={{ width: "24px", height: "24px", marginLeft: "5px"}} />
+            )
+          }}
+        />
+        <Tab.Screen
+            name="Settings"
           component={Profile}
           options={{
             tabBarIcon: ({ color, size }) => (
-              <img src={Settings} style={{ width: "40px", height: "40px" }} />
+              <img src={SettingsIcon} style={{ width: "24px", height: "24px" }} />
             ),
-            headerShown: true
+            headerShown: true,
+            headerStyle: {
+              backgroundColor: '#ffffff',
+            },
+            headerLeft: () => (
+              <img src={SettingsIcon} style={{ width: "24px", height: "24px", marginLeft: "5px"}} />
+            )
           }}
         />
       </Tab.Navigator>
     </NavigationContainer>
+    </SafeAreaProvider>
   );
 }
 
 function Profile({ navigation }) {
+  const [billing, setBilling] = useState(`https://billing.stripe.com/p/login/7sI6rY1MOdMAdOM8ww?prefilled_email=${auth.currentUser.email}`);
   let [open,setOpen] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  
+  const handlers = useSwipeable({
+    onSwipedDown: () => {setModalVisible(!modalVisible);},
+    //onTap: () => {setModalVisible(!modalVisible);},
+    touchEventOptions: { passive: false },
+    preventScrollOnSwipe: true,
+  });
 
-  function handlePremium() {
-    setOpen(true)
-  }
-
-  //   InAppPurchases.connectAsync().then((result) => {
-//     return result;
-//   }).catch((error) => {
-//     return error;
-//   })
-
-//   ProductItems().then((result)=>{
-//     return result;
-//   }).catch((error)=>{
-//     return error;
-//   })
-
-//   async function PurchaseItem(item) {
-//     InAppPurchases.purchaseItemAsync(item).then((result)=>{
-
-//     })
-//   }
   return (
     <>
-    <View style={{ flex: 1, justifyContent: 'start', alignItems: 'start'}} className="header">
-      {/* <section class="profile">
-        <header class="header">
-          <div class="details">
-            <img src={User} class="profile-pic"/>
-          </div>
-        </header>
-      </section> */}
-            <Modal
-        animationType="slide"
-        transparent={false}
-        visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible);
-        }}>
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <Text style={styles.modalText}>Premium Plan</Text>
-            <Pressable
-              style={[styles.button, styles.buttonClose]}
-              onPress={() => setModalVisible(!modalVisible)}>
-              <Text style={styles.textStyle}>Hide Modal</Text>
-            </Pressable>
-            <>
-            <div class="subscribe-screen">
-          <div class="purchase_box">
-            <div class="purchase_header">
-              <h1 class="features_header">
-                Premium Plan
-              </h1>
-            </div>
-      <div class="features_box">
-        <p class="features_point">Custimizable Themes & Fonts</p>
-        <p class="features_point">Flexible Map Funk</p>
-        <p class="features_point">Collaborate on the Globe</p>
-        <p class="features_point">Add Unlimited Maps</p>
-        <p class="features_point">Unlock Globle & Terrain Style</p>
-      </div>
-      
-      <div class="purchase_button_box">
-        <p class="purchase_label">Monthly</p>
-        <button class="button-38" role="button">
-          <div class="map_point_label">
-            <p class="title_point">7 day free trial then, $5.99 a month</p>   
-          </div>
-        </button>
-        <p class="purchase_label">Yearly</p>
-        <button class="button-38" role="button">
-        <div class="map_point_label">
-          <p class="title_point">7 day free trial then, $49.99 a year</p>   
-        </div>
-        </button>
-      </div>
-
-    </div>
-          </div>
-            </>
-          </View>
-        </View>
-      </Modal>
-        <div class="map_points">
-        <button class="profile_button" role="button" onClick={() => setModalVisible(true)}>
-            <div class="map_point_label">
-            <img src={Key} className='settings'/>
-            <p class="title_point">Unlock Premium</p>   
-          </div>
-        </button>
-        <button class="profile_button" role="button" target="_blank" href="">
-            <div class="map_point_label">
-              <img src={Community} className='settings'/>
-              <p class="title_point">Share AtlasJournal</p>   
-            </div>
-        </button>
-        {/* <a class="profile_button" role="button" target="_blank" href="">
-            <div class="map_point_label">
-            <img src={Rating} className='settings'/>
-              <p class="title_point">Leave a Rating</p>   
-            </div>
-        </a>
-        <a class="profile_button" role="button" target="_blank" href="">
-            <div class="map_point_label">
-            <img src={Review} className='settings'/>
-              <p class="title_point">Write a review</p>   
-            </div>
-        </a>
-        <a class="profile_button" role="button" target="_blank" href="">
-            <div class="map_point_label">
-            <img src={Sustainability} className='settings'/>
-              <p class="title_point">Climate Action</p>   
-            </div>
-        </a>
-        <a class="profile_button" role="button" target="_blank" href="">
-            <div class="map_point_label">
-            <img src={File} className='settings'/>
-              <p class="title_point">Terms & Conditions</p>   
-            </div>
-        </a>
-        <a class="profile_button" role="button" target="_blank" href="">
-            <div class="map_point_label">
-            <img src={File} className='settings'/>
-              <p class="title_point">Privacy Policy</p>   
-            </div>
-        </a> */}
-        <button class="profile_button" role="button" onClick={() => {signOut(auth).then((res)=>{
+    <div className='mapContainer'>
+    <View style={{ flex: 1, justifyContent: 'start', alignItems: 'start', paddingTop: useSafeAreaInsets().top, paddingBottom: 0, bottom: 0}}>
+        <div class="profile_button_box">
+        <div className='signoutbuttonbox'>
+        <button class="signOut" role="button" onClick={() => {signOut(auth).then((res)=>{
     console.log(res);
   }).catch((err)=>{
     console.log(err);
   })}}>
-            <div class="map_point_label">
-            <p class="title_point">Sign Out</p>   
+            <div class="sign_out_label">
+            <p class="sign_out_point">Sign Out</p>   
             </div>
         </button>
+        </div>
             </div>
     </View>
+    </div>
     </>
   );
 }
@@ -983,337 +700,220 @@ function MyStack() {
     </Stack.Navigator>
   );
 }
-
-const ud = {
-  email: "",
-  premium: undefined,
-  maps: [{
-    name: "Robin",
-    id: "",
-    shared: "",
-    type: "FeatureCollection",
-    features: [{
-      type: 'Feature',
-      properties: {
-        feature_id: "",
-        photoUrls: [],
-        notes: "",
-        color: "",
-        survey: "",
-        place: "",
-        lastEdited: "",
-      },
-      geometry: {
-        'type': 'Point',
-        'coordinates': []
-      }
-    }]
-  }]
-}
-
-const initMap = {
-      type: 'Feature',
-      properties: {
-        feature_id: "",
-        photoUrls: [],
-        notes: "",
-        color: "",
-        survey: "",
-        place: "",
-        lastEdited: "",
-      },
-      geometry: {
-        'type': 'Point',
-        'coordinates': []
-      }
-  };
-
-const initList2 = [{
-  "name": "",
-  "pin": 1234,
-  "geo": {
-  'type': 'FeatureCollection',
-  'features': [
-  {
-    'type': 'Feature',
-    'properties': {
-      'message': 'Foo',
-      'iconSize': [60, 60],
-      'color': '#000000'
-  },
-    'geometry': {
-      'type': 'Point',
-      'coordinates': [-66.324462, -16.024695]
-    }
-  },
-  {
-    'type': 'Feature',
-    'properties': {
-      'message': 'Bar',
-      'iconSize': [50, 50]
-    },
-    'geometry': {
-      'type': 'Point',
-      'coordinates': [-61.21582, -15.971891]
-    }
-  },
-  {
-    'type': 'Feature',
-    'properties': {
-    'message': 'Baz',
-    'iconSize': [40, 40]
-    },
-    'geometry': {
-    'type': 'Point',
-    'coordinates': [-63.292236, -18.281518]
-    }
-  }
-  ]
-  }
-}];
-
-const listReducer = (state, action) => {
-    switch (action.type) {
-      case 'ADD_ITEM':
-        return {
-          ...state,
-          list: state.list.concat({ name: action.name, id: action.id, type: 'FeatureCollection', shared: "", features: initMap }),
-        };
-
-      case 'DELETE_ITEM':
-        const newList = state.list.filter((r, i)=>{
-          return r.id != action.id;
-        })
-        //db(collection(db, 'users'))
-        return {
-          ...state,
-          list: newList
-        }
-        case 'COPY_ITEM':
-          return {
-            ...state,
-            list: state.list.concat({ name: action.name, id: action.id, type: 'FeatureCollection', shared: "", features: action.features}),
-          }
-      default:
-        throw new Error();
-    }
-  };
   
-  const HomeScreen = () => {
-    const [list, setList] = React.useState({});
-    const [user, setUser] = useState(auth.user);
-    useEffect(async ()=>{
-      onAuthStateChanged(auth, async (user) => {
-        setUser(user);
-      });
-      await getDoc(doc(db, "users", auth.currentUser.uid)).then((doc) => {
-        console.log(doc.data());
-        setList(doc.data());
-        //setgeo(doc.data().data[0].geo[0]);
-        return doc.data();
-      }).catch((error) => {
-        console.log("Error getting document:", error);
-      });
-    }, list);
-    const [listData, dispatchListData] = React.useReducer(listReducer, {
-      list: list.data || ud.maps,
-      isShowList: true,
-    });
-    const [name, setName] = React.useState('');
-    //const usersRef = db.getCollection('users');
-    function handleChange(event) {
-      setName(event.target.value);
-    }
-  
-    async function handleAdd() {
-      dispatchListData({ type: 'ADD_ITEM', name, id: uuidv4(), features: initMap });
-      setName('');
-    }
-  
-    return (
-      <div>
-        <AddItem
-          name={name}
-          onChange={handleChange}
-          onAdd={handleAdd}
-        />
-        <div className='operations'>
-        <List list={listData.list} />
-        </div>
-      </div>
-    );
-  };
-  
-  const AddItem = ({ name, onChange, onAdd }) => (
-    <div class="add_box">
-      <input class="form__input" type="text" placeholder=" Create a map..." value={name} onChange={onChange} />
-      <button class="add_button" type="button" onClick={onAdd}>
-        <img src={MapMarker} className='add_map'/>
-      </button>
-    </div>
-  );
-  //start here
-  const List = ({ list, navigation }) => {
+  const HomeScreen = ({navigation}) => {
+    let listRef = useRef({});
+    let [text, setText] = useState('');
+    const [disabled, setDisabled] = useState(false);
+    const [disabled2, setDisabled2] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
+    const [modalVisible2, setModalVisible2] = useState(false);
+    const [list, setList] = React.useState({});
     const [title, setTitle] = useState("");
-    const [mapList,setList] = useState(null);
-
-    function deleteList(listId) {
-      //const userData = db.collection('users').doc(u.uid).get();
-      //const d = (await userData).data;
-      //const json = JSON.parse(d.geoData);
-      const index = list.findIndex((item, index)=>{
-        if(item.id == listId){
-          return index;
+    const [description, setDescription] = useState("");
+    const [pointTitle, setPointTitle] = useState("");
+    const [pointDescription, setPointDescription] = useState("");
+    const [lng, setlng] = useState(0);
+    const [lat, setlat] = useState(0);
+    const [mapList,setMapList] = useState(null);
+    const Access_Key = 'tKqmTYXWxWdvGHHlbO8OtfdtJMYaz0KXKWKyCaG61u4';
+    const fetchRequest = async (img) => {
+      const data = await fetch(
+        `https://api.unsplash.com/search/photos?page=1&query=${img}&client_id=${Access_Key}&per_page=20`
+      );
+      const dataJ = await data.json();
+      const result = dataJ.results;
+      //console.log(result);
+      return result;
+    };
+    const generateMarkers = useCallback(async () => {  
+      setDisabled(true);
+      const myInit = {
+        method: "GET",
+      };
+      await fetch('https://grape-c45e3.web.app/generateMarkers', myInit).then(async (res) => {
+        return await res.json();
+      }).then(async (x)=>{
+        console.log(x);
+        var d = x;
+        for(var i = 0; i < x.geo[0].features.length; i++){
+          d.geo[0].features[i].properties.images = [];
+          await fetchRequest(d.geo[0].features[i].properties.title).then((res)=>{
+            for(var t = 0;t<res.length;t++){
+              d.geo[0].features[i].properties.images.push({original: res[t].urls.regular, thumbnail: res[t].urls.thumb});
+            }
+          })
+          console.log(d.geo[0].features[i].properties.images);
+          // console.log(x.geo[0].features[i].geometry.coordinates[0]);
+          // console.log(x.geo[0].features[i].geometry.coordinates[1]);
+          // console.log(x.geo[0].features[i].properties.id);
+          // console.log(x.geo[0].features[i].properties.title);
+          // console.log(x.geo[0].features[i].properties.description);
+          // console.log(x.geo[0].features[i].properties.color);
         }
+        console.log(d);
+        const byteSize = str => new Blob([str]).size;
+        console.log(byteSize(JSON.stringify(d)))
+        const userRef = doc(db, "users", auth.currentUser.uid);
+        const j = await getDoc(userRef);
+        var t = JSON.parse(j.data().data);
+        t.push(d);
+        await updateDoc(userRef, {
+          data: JSON.stringify(t),
+          lastLoggedIn: serverTimestamp()
+        });
+        return x;
+      }).catch((err) => {
+        console.log(err);
+        return err;
       });
-      if (index > -1) { // only splice array when item is found
-       list.splice(index, 1); // 2nd parameter means remove one item only
-      }
-    }
+    },[disabled]);
 
-    function collaborate() {
+    $('.mapButton').on("click", (async function(){
+      console.log(list);
+      // const d = {features: []};
+      var index = $(this).attr('data-id');
+      // console.log(index);
+      // var data = await getDoc(doc(db,"users", auth.currentUser.uid));
+      // data = JSON.parse(data.data().data);
+      // var h = data[parseInt(index)];
+      // console.log(data);
+      // console.log(d);
+      navigation.navigate('Atlas', {list: list, id: index});
+    }));
+
+    $('.shareButton').on("click", (async function(){
+      var o = $(this).attr('data-id');
+      const data = await getDoc(doc(db,"users", auth.currentUser.uid));
+      var d = data.data().data[parseInt(o)];
       if (navigator.share) { 
-        navigator.share({
-          title: 'Collaborate with {user}',
-          url: 'https://atlasjournal?share=${share-key}'
+        await navigator.share({
+          title: `${d.title}`,
+          url: `https://askatlas.org/?share=[${d}]`
         }).then(() => {
           console.log('Thanks for sharing!');
         }).catch(console.error);
         } else {
-          //shareDialog.classList.add('is-open');
+          return ;
       }
-    }
+    }));
 
-    function copy() {
-      list.push({name: title, id: uuidv4(), geo: mapList});
-    }
+    $('.deleteButton').on("click", (async function(){
+      var o = $(this).attr('data-id');
+      console.log(o);
+      var data = await getDoc(doc(db,"users", auth.currentUser.uid));
+      data = JSON.parse(data.data().data);
+      console.log(data);
+      data.splice(parseInt(o),1);
+      const userRef = doc(db, "users", auth.currentUser.uid);
+      await updateDoc(userRef, {
+        data: JSON.stringify(data),
+        lastLoggedIn: serverTimestamp()
+      });
+      
+    }));
 
-    function exportToJSON() {
-      var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
-      var downloadAnchorNode = document.createElement('a');
-      downloadAnchorNode.setAttribute("href", dataStr);
-      downloadAnchorNode.setAttribute("download", list[0].name + ".json");
-      document.body.appendChild(downloadAnchorNode); // required for firefox
-      downloadAnchorNode.click();
-      downloadAnchorNode.remove(); 
-    }
+    $('.atlasaibutton').on("click", (function() {
+      setModalVisible2(!modalVisible2);
+    }))
 
-    function deleteMap() {
-      const listIndex = list.findIndex(title);
-      if(listIndex > 0) {
+    $(".ai").on("click", () => {
+      setModalVisible2(true);
+    });
 
-      }
-    }
-
-    function handleBottomSheet(itemName,itemGeo) {
-        setModalVisible(true);
-        setTitle(itemName);
-        setList(itemGeo);
-    }
-
-    function gotoPoint() {
-
-    }
+function hideDice() {
+  const show = document.querySelector('.send');
+  show.innerHTML = `<img src=${Discuss} width="24px" height="24px"/>`;
+}
+function showDice() {
+  const show = document.querySelector('.send');
+  show.innerHTML = `<img src=${SendIcon} width="24px" height="24px"/>`;
+}
+    useEffect(async ()=>{
+      const sub = await onSnapshot(doc(db, "users", auth.currentUser.uid), async (doc) => {
+        setList(JSON.parse(doc.data().data));
+        console.log(JSON.parse(doc.data().data));
+        var g = JSON.parse(doc.data().data);
+        document.querySelector('.box').innerHTML = '';
+        for(var i = 0;i < g.length;i++){
+          var h = g[i];
+          console.log(h);
+          var coordinateText = h.geo[0].features;
+          console.log(coordinateText);
+          var ctxt = '';
+          for(var y = 0; y < coordinateText.length;y++){
+            ctxt += coordinateText[y].properties.title + '_' + coordinateText[y].properties.description + '_'+ coordinateText[y].geometry.coordinates[0] + '_' + coordinateText[y].geometry.coordinates[1] + '~';
+          }
+          var txt3 = document.createElement("div");  // Create with DOM
+          txt3.setAttribute('class', 'docs');
+          txt3.innerHTML = `<button class="mapButton" data-id=${i} data-c="${ctxt}" data-x="${h.title}~${h.description}~${ctxt}" 
+          style="    
+          padding: 10px 10px;
+          border: 1px solid #e1e1e1; /* Subtle border */
+          border-radius: 8px;
+          background-color: #ffffff; /* Minimalistic button background */
+          color: #212121; /* Close to black for the text */
+          font-size: 16px;
+          text-align: left;
+          font-weight: normal;
+          transition: all 0.3s ease;
+          cursor: pointer;
+          width: 100%; /* Full width for better mobile responsiveness */
+          margin: 8px 0; /* Space between buttons */
+          box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+          display: flex;
+          align-items: center;
+          text-wrap: balance;
+          ">
+          <img width="24" height="24" style="margin-right: 5px" src="https://img.icons8.com/3d-fluency/94/sparkling-1.png" alt="sparkling-1"/>
+          ${h.title}
+          <button class="deleteButton" data-id="${i}"> 
+            <img width="30" height="30" src="https://img.icons8.com/ios/50/delete-sign--v1.png" alt="delete-sign--v1"/>
+          </button>   
+          </button>`;
+          $(".box").append(txt3);
+        }
+      });
+    }, []);
 
     return (
       <>
-    <div class="box">
-      {list.map((item) => (
-        <>
-        <button class="map_button" role="button" key={item.id} onClick={() => handleBottomSheet(item.name, item.geo)}>
-        <img src={GlobeMarker} className='globe'/>
-        <h3>{item.name}</h3>
-        </button>
-      
-      </>
-      ))}
-      <>
-      <Modal
-        animationType="slide"
-        transparent={false}
-        visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible);
-        }}>
-          <>
-          <Pressable
-              style={[styles.button, styles.buttonClose]}
-              onPress={() => setModalVisible(!modalVisible)}>
-              <Text style={styles.textStyle}>Close</Text>
-        </Pressable>
-          <input
-              className="form__input mt-1 block w-full bg-gray-100 border-transparent focus:border-gray-300 focus:bg-white focus:ring-0"
-              type="text"
-              placeholder="Text input field in a sticky header"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-        <div class="map_points">
-          <p class="point-title">{list.length} memories</p>
-          <div class="points-containe">
-        <button class="button-38 point" role="button">
-            <div class="map_point_label">
-            <p class="title_point">Title Point</p>   
-            </div> 
-        </button>
+      <div className='mapContainer' style={{paddingTop: useSafeAreaInsets().top, bottom: 0}}>
+        <div className='operations'>
+          <div className="box">
+            </div>
         </div>
-        <div class="map_functions">
-          <button class="button-38" role="button" onClick={copy}>
-              <div class="map_point_label">
-              Copy 
-              </div> 
+      </div>
+      <div>
+              <div className='show'>
+                <div className='showInput'>
+            <TextInput style={styles.input} multiline={true} rows={1} maxLength={1000} value={text} onChangeText={(text) => setText(text)} placeholder="Enter text here" />
+            </div>
+            <div class="delete_point">
+        <button class="button-38" disabled={disabled} onClick={async ()=>{
+          hideDice();
+            await generateMarkers().then(()=>{
+              showDice();
+            }).catch((err)=>{
+              console.log(err);
+              showDice();
+              return ;
+            })
+          }}><p class="send">                    
+            <img src={SendIcon} style={{width:"24px",height:"24px", borderRadius: "1rem"}}/>
+          </p>
           </button>
-          <button class="button-38" role="button" onClick={collaborate}>
-              <div class="map_point_label">
-              Share   
-              </div> 
-          </button>
-          <button class="button-38" role="button" onClick={exportToJSON}>
-            <div class="map_point_label">
-            Export
-            </div> 
-          </button>
-            <button class="button-38" role="button" onClick={deleteList}>
-              <div class="map_point_label">
-              Delete
-              </div> 
-            </button>
-        </div>
-        </div>
-        </>
-      </Modal>
-    </>
-    </div>
-    </>
-  )
-};
+      </div>
+            </div>
+      </div>
+            <>
+          </>
+          </>
+    );
+  };
 
-
-//end here
 export default function App() {
   const [user, setUser] = useState(null);
-  // const [expoPushToken, setExpoPushToken] = useState('');
-  // const [notification, setNotification] = useState(false);
-  // const notificationListener = useRef();
-  // const responseListener = useRef();
-
-  // useEffect(() => {
-  //   registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
-
-  //   notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-  //     setNotification(notification);
-  //   });
-
-  //   responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-  //     console.log(response);
-  //   });
-
-  //   return () => {
-  //     Notifications.removeNotificationSubscription(notificationListener.current);
-  //     Notifications.removeNotificationSubscription(responseListener.current);
-  //   };
-  // }, []);
   useEffect(()=>{
     onAuthStateChanged(auth, async (user) => {
       setUser(user);
@@ -1324,8 +924,6 @@ export default function App() {
     <>
       {user == null ? <SignIn /> : <MyTabs />}
     </>
-    //<SignIn />
-    //<MyTabs />
     
   );
 }
