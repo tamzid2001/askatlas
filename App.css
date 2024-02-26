@@ -6,6 +6,171 @@
   font-family: 'Arial', sans-serif; /* Choose a modern, readable font */
 }
 
+.nav_link {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.nav_images {
+  border-radius: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+.nav_button {
+  width: fit-content;
+  display: flex;
+  flex-direction: column;
+  color: grey;
+  font-size: small;
+  align-items: center;
+  justify-content: center;
+  margin: 1rem;
+}
+.card_blog {
+  display: flex;
+  flex-direction: column;
+  width: clamp(20rem, calc(20rem + 2vw), 22rem);
+  overflow: hidden;
+  box-shadow: 0 .1rem 1rem rgba(0, 0, 0, 0.1);
+  border-radius: 1em;
+  background: #ECE9E6;
+  background: linear-gradient(to right, #FFFFFF, #ECE9E6);
+
+}
+
+.social_title {
+  font-size: 14px;
+  color: grey;
+  font-family: sans-serif;
+}
+
+.card__body {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+
+.tag {
+  align-self: flex-start;
+  padding: .25em .75em;
+  border-radius: 1em;
+  font-size: .75rem;
+}
+
+.tag + .tag {
+  margin-left: .5em;
+}
+
+.tag-blue {
+  background: #56CCF2;
+background: linear-gradient(to bottom, #2F80ED, #56CCF2);
+  color: #fafafa;
+}
+
+.tag-brown {
+  background: #D1913C;
+background: linear-gradient(to bottom, #FFD194, #D1913C);
+  color: #fafafa;
+}
+
+.tag-red {
+  background: #cb2d3e;
+background: linear-gradient(to bottom, #ef473a, #cb2d3e);
+  color: #fafafa;
+}
+
+.card__body h4 {
+  font-size: 1.5rem;
+  text-transform: capitalize;
+}
+
+.card__footer {
+  display: flex;
+  padding: 1rem;
+  margin-top: auto;
+}
+
+.user {
+  display: flex;
+  gap: .5rem;
+}
+
+.user__image {
+  border-radius: 50%;
+}
+
+.user__info > small {
+  color: #666;
+}
+
+.Demo__container {
+width: 95vw;
+}
+.Demo__some-network {
+  vertical-align: top;
+  display: inline-block;
+  margin-right: 1rem;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.Demo__some-network__share-count {
+  display: inline-flex;
+  justify-content: center;
+  white-space: nowrap;
+  overflow: visible;
+  width: 0;
+  margin-top: 3px;
+  font-size: 16px;
+}
+
+.Demo__some-network__share-button {
+  cursor: pointer;
+}
+
+.Demo__some-network__share-button:hover:not(:active) {
+  opacity: 0.75;
+}
+
+.Demo__some-network__custom-icon {
+  width: 32px;
+  height: 32px;
+}
+
+.react-share__ShareButton svg {
+  width: 64px;
+  height: 64px;
+}
+.topBarLeft {
+  height: 5px;
+    width: 50px;
+    background-color: lightgrey;
+    border-radius: 1rem;
+    margin-bottom: 8px;
+}
+
+.mapButton {
+  padding: 10px 10px;
+  border: 1px solid #e1e1e1; /* Subtle border */
+  border-radius: 8px;
+  background-color: #ffffff; /* Minimalistic button background */
+  color: #000000; /* Close to black for the text */
+  font-size: 18px;
+  font-weight: bold !important;
+  text-align: left;
+  font-weight: normal;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  width: 100%; /* Full width for better mobile responsiveness */
+  margin: 8px 0; /* Space between buttons */
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: center;
+}
+
 .lds-ellipsis {
   display: inline-block;
   position: relative;
@@ -67,6 +232,155 @@
   align-items: center;
   font-size: medium;
 }
+
+.settings-container {
+  font-family: 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  background-color: #ffffff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.section-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid grey;
+}
+
+.section-container:last-child {
+  border-bottom: none;
+}
+
+.settings {
+  line-height: 1.6;
+}
+
+.account-info {
+  background-color: #f7f7f7;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.email, .username {
+  display: flex;
+  color: #333;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.btn-clear-history {
+  background-color: #ff6b6b;
+  color: #fff;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100%; /* Makes button full width */
+  box-sizing: border-box;
+}
+
+.btn-clear-history:hover {
+  background-color: #f55f5f;
+}
+
+.help-section a, .follow-us-section a, .about-section a {
+  color: #000000;
+  padding: 8px 0;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.help-section a:hover, .follow-us-section a:hover, .about-section a:hover {
+  color: #0056b3;
+}
+
+.help-section, .follow-us-section, .about-section {
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  margin-left: 40px;
+  margin-right: 40px;
+}
+
+.help-section a:last-child, .follow-us-section a:last-child, .about-section a:last-child {
+  border-bottom: none;
+}
+
+.account-actions {
+  margin-top: 20px;
+}
+
+.btn-sign-out, .btn-delete-account {
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  text-transform: uppercase;
+  transition: background-color 0.3s, color 0.3s;
+  border: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.btn-sign-out {
+  background-color: #3498db;
+  color: white;
+  margin-bottom: 10px; /* Adds space between buttons */
+  width: 90%;
+  margin: auto;
+}
+
+.btn-sign-out:hover {
+  background-color: #2980b9;
+}
+
+.btn-delete-account {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.btn-delete-account:hover {
+  background-color: #c0392b;
+}
+
+.app-version {
+  color: #777;
+  font-size: 14px;
+  text-align: center;
+  padding: 15px 0;
+  border-top: 1px solid #ececec;
+  background-color: #f7f7f7;
+  border-radius: 0 0 10px 10px;
+}
+
+.account-header, .legal-header, .help-header, .social-header, .danger-header {
+  margin-top: 10px;
+  margin-left: 20px;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+  .settings-container {
+    width: 100%;
+  }
+}
+
+/* Ensure that the font sizes and colors match the actual design */
+
+
+
+/* Add more styles for other elements */
+
 
 .w {
   display: flex;
@@ -269,6 +583,44 @@
   margin: 0 auto; /* Center text within the button */
   font-weight: normal;
 }
+
+
+.apple-sign-in {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 1rem;
+  border: none;
+  background: black;
+  color: white;
+  font-size: 25px;
+  cursor: pointer;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+
+}
+
+.google-sign-in {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 1rem;
+  border: none;
+  background: white;
+  color: black;
+  font-size: 25px;
+  cursor: pointer;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+
+}
+
 .login-with-google-btn {
   transition: background-color 0.3s, box-shadow 0.3s;
   padding: 12px 16px 12px 42px;
@@ -550,11 +902,11 @@ label:active:after {
   box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.1);
   margin: 0;
   padding: 0;
-  background-repeat: no-repeat;
-  background-size: cover !important;
+  background-repeat: round;
+  background-size: contain !important;
   width: -webkit-fill-available;
   background-color: #ffffff;
-  /* background-image: url('./assets/background.png'); */
+  background-image: url('./assets/background.png');
 }
 
 /* Styles for the logo box */
@@ -581,6 +933,8 @@ label:active:after {
 .signin_button_box {
   width: 100%;
   margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
 }
 
 .sign-in {
@@ -840,10 +1194,6 @@ svg {
   }
 }
 
-.settings {
-  width: 2rem;
-}
-
 .form__input {
   border-radius: 0.5rem !important;
   height: 3rem;
@@ -1060,7 +1410,6 @@ svg {
 
 .profile_button_box {
   width: 100%;
-  max-height: 75vh;
   scroll-behavior: auto;
   display: flex;
   flex-direction: column;
@@ -1171,6 +1520,56 @@ a:active {
   color: #212121;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 }
+.scrolling-wrapper {
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  background-color: #ffffff;
+  height: fit-content;
+  display: flex;
+  padding-bottom: 10px;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.scrolling-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.scrolling-wrapper {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.card {
+  display: flex;
+  background: white;
+  text-align: left;
+  padding: 8px;
+  margin: 5px;
+  margin-bottom: 20px;
+  height: fit-content;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  align-items: center;
+}
+
+.card:first-child {
+  margin-left: 12px;
+}
+
+.card h3 {
+  margin: 0;
+  padding-bottom: 8px;
+}
+.card button {
+  border: none;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
 
 .deleteButton {
   height: fit-content;
@@ -1181,6 +1580,8 @@ a:active {
   border-radius: 8px;
   background-color: #ffffff;
   color: #212121;
+  margin-left: 10px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 }
 
 .image-gallery-content .image-gallery-slide .image-gallery-image {
@@ -1345,9 +1746,15 @@ a:active {
 
 /* Full-screen background styling */
 html, body {
+  touch-action:none;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
   width: 100%;
   height: 100%;
-  font-family: 'Arial', sans-serif;
+  font-family: 'Roboto', sans-serif;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1448,16 +1855,16 @@ html, body {
 
 /* CSS */
 .button-38 {
-  background-color: springgreen;
+  background-color: #ffffff;
   border: 0;
   border-radius: 2rem;
   box-sizing: border-box;
   color: #111827;
-  font-family: "Inter var",ui-sans-serif,system-ui,-apple-system,system-ui,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+  font-family: "Roboto",ui-sans-serif,system-ui;
   font-size: 1.25rem;
   font-weight: 600;
   line-height: 1.25rem;
-  padding: .75rem 1rem;
+  padding: 0.7rem 0.3rem;
   text-align: center;
   text-decoration: none #D1D5DB solid;
   text-decoration-thickness: auto;
