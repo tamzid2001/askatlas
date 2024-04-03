@@ -4,6 +4,7 @@ import ImageGallery from "react-image-gallery";
 import "react-image-gallery/styles/css/image-gallery.css";
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
+import { hexToCSSFilter, HexToCssConfiguration } from 'hex-to-css-filter';
 import {
   SafeAreaProvider,
   useSafeAreaInsets,
@@ -11,6 +12,9 @@ import {
 import {Alert, Image, Modal, StyleSheet, Text, Pressable, View, TextInput, SafeAreaView, ScrollView} from 'react-native';
 import $ from 'jquery';
 import CityMapper from './assets/citymapper.png';
+import CloseButton from './assets/close.svg';
+import CloseButtonWhite from './assets/cross-white.png';
+import AppleMapsLogo from './assets/applemapslogo.png';
 import Uber from './assets/uber.png';
 import Waze from './assets/waze.png';
 import Navmii from './assets/navmii.png'
@@ -47,6 +51,7 @@ import User from "./assets/user.png"
 import Map from "./assets/map.png"
 import MarkerPlaceholder from "./assets/marker_placeholder.png"
 import Marker from "./assets/marker.png"
+import MarkerSVG from "./assets/markercolorpopup.svg"
 import TwoMarkers from "./assets/two_markers.png"
 import Trash from "./assets/trash.png"
 import Contacts from "./assets/contacts.png"
@@ -72,6 +77,7 @@ mapboxgl.accessToken =
 import { initializeApp, firebase } from 'firebase/app';
 import { onAuthStateChanged, FacebookAuthProvider, OAuthProvider, TwitterAuthProvider, GoogleAuthProvider, getAuth, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, getAdditionalUserInfo, signInAnonymously, linkWithCredential } from "firebase/auth";
 import { getFirestore, query, getDocs, collection, where, addDoc, doc, getDoc, updateDoc, setDoc, onSnapshot, arrayUnion, arrayRemove, serverTimestamp, deleteDoc } from "firebase/firestore";
+import { getAnalytics, logEvent } from "firebase/analytics";
 import {
   EmailIcon,
   EmailShareButton,
@@ -138,7 +144,18 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
-
+const analytics = getAnalytics();
+import TagManager from 'react-gtm-module'
+const tagManagerArgs = {
+  gtmId: 'G-22HJ6GSR49',
+}
+const tagManagerArgs2 = {
+  gtmId: 'AW-16493182687',
+}
+//AW-16493182687
+TagManager.initialize(tagManagerArgs)
+TagManager.initialize(tagManagerArgs2)
+const api_key_geolocation = "1e697e8285b34190a228cd2836c338a6";
 const styles = StyleSheet.create({
   centeredView: {
     flex: 1,
@@ -146,7 +163,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 0,
   },
-  modalView: {
+  centeredView2: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 0,
+  },
+  shareView: {
     paddingTop: '8px',
     margin: 0,
     height: 'fit-content',
@@ -154,7 +177,65 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderTopLeftRadius: '1rem',
     borderTopRightRadius: '1rem',
+    padding: '0px 35px',
+    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.6), 0 1px 2px 0 rgba(0, 0, 0, 0.06);', /* Soft box shadow */
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalView: {
+    paddingTop: '8px',
+    margin: 0,
+    height: '90vh',
+    width: '100%',
+    backgroundColor: '#ffffff',
+    borderTopLeftRadius: '1rem',
+    borderTopRightRadius: '1rem',
     padding: 35,
+    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.6), 0 1px 2px 0 rgba(0, 0, 0, 0.06);', /* Soft box shadow */
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalView2: {
+    paddingTop: '8px',
+    margin: 0,
+    height: '25vh',
+    width: '90%',
+    backgroundColor: '#ffffff',
+    borderTopLeftRadius: '1rem',
+    borderTopRightRadius: '1rem',
+    borderRadius: '1rem',
+    padding: 15,
+    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.6), 0 1px 2px 0 rgba(0, 0, 0, 0.06);', /* Soft box shadow */
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  productView: {
+    paddingTop: '8px',
+    margin: 0,
+    height: '100vh',
+    width: '100%',
+    backgroundColor: "#f4f4f8",
     boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.6), 0 1px 2px 0 rgba(0, 0, 0, 0.06);', /* Soft box shadow */
     alignItems: 'center',
     shadowColor: '#000',
@@ -211,13 +292,17 @@ titleBox: {
   justifyContent: 'center',
   alignItems: 'baseline',
   width: '100%',
-  margin: '1rem',
 },
 });
 
 const MapScreen = ({navigation, route}) => {
   const imageRef = useRef(null);
   const [index, setIndex] = useState(0);
+  const [reviewLink, setReviewLink] = useState("https://play.google.com/store/apps/details?id=com.firebaseapp.atlasai.twa");
+  const [googleMapsLink, setGoogleMapslink] = useState("");
+  const [appleMapsLink, setAppleMapslink] = useState("");
+  const [wazeMapsLink, setWazeMapslink] = useState("");
+  const [citymapperMapsLink, setCityMapperlink] = useState("");
   //console.log(route.params);
   // const [userMapList,setMapList] = useState(route.params);
   const [images, setImages] = useState([]);
@@ -225,15 +310,17 @@ const MapScreen = ({navigation, route}) => {
   const map = useRef(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalVisible2, setModalVisible2] = useState(false);
+  const [modalVisible3, setModalVisible3] = useState(false);
+  const [modalVisible4, setModalVisible4] = useState(false);
   // const [data, setData] = useState({});
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [lng, setLng] = useState(5);
   const [lat, setLat] = useState(34);
-  const [zoom, setZoom] = useState(1.5);
+  const [zoom, setZoom] = useState(10);
   // const [id,setid] = useState('');
   const [mk, setmk] = useState([]);
-  // const [list,setList] = useState(undefined);
+  const [popuplist,setPopupList] = useState([]);
   // const [disabled, setDisabled] = useState(false);
   //setData(route.params);
   function findAncestor(el) {
@@ -245,8 +332,7 @@ const MapScreen = ({navigation, route}) => {
     }
   }
   var m = [];
-
-
+  var p = [];
   const handlers = useSwipeable({
     onSwipedDown: () => {setModalVisible(!modalVisible);},
   });
@@ -254,18 +340,231 @@ const MapScreen = ({navigation, route}) => {
     onSwipedDown: () => {setModalVisible2(!modalVisible2);},
   });
   //var currentMarkers = [];
-
+  function copyToClipboard() {
+    const userId = auth.currentUser.uid;
+    // const textarea = document.createElement('textarea');
+    // textarea.value = userId;
+    // document.body.appendChild(textarea);
+    // textarea.select();
+    // document.execCommand('copy');
+    // document.body.removeChild(textarea);
+    navigator.clipboard.writeText(userId);
+    logEvent(analytics, 'copy_uid');
+    return;
+}
 // let [geoJson, setgeo] = useState({type: 'FeatureCollection', features: []});
 // let [text, setText] = useState('');
   // Initialize map when component mounts
+  async function get_user_location() {
+    await fetch(`https://api.ipgeolocation.io/ipgeo?apiKey=1e697e8285b34190a228cd2836c338a6`, {
+      method: 'GET',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Request-Control-Allow-Origin': '*',
+      },
+    }).then(async (response) => {
+      var g = await response.json();
+      console.log(g);
+      console.log(g.latitude);
+      console.log(g.longitude);
+      setLat(parseFloat(g.latitude));
+      setLng(parseFloat(g.longitude));
+      if(map.current != null && route.params == undefined) {
+        const target = {
+          center: [parseFloat(g.longitude), parseFloat(g.latitude)],
+          zoom: 8,
+          bearing: 0,
+          pitch: 0
+          };
+        map.current.flyTo({
+         ...target, // Fly to the selected target
+          zoom: 16, // Maintain the current zoom level
+          bearing: 0, // Maintain the current bearing angle
+          pitch: 0, // Maintain the current pitch angle
+        });
+      }
+      return g;
+    }).catch((err)=>{
+      console.log(err);
+      return err;
+    })
+  }
+
+const nextMarkerF = useCallback((x, y) => {
+  const target = {
+    center: [x, y],
+    zoom: 10,
+    bearing: 0,
+    pitch: 0
+    };
+  map.current.flyTo({
+    ...target, // Fly to the selected target
+    duration: 5000, // Animate over 12 seconds
+    essential: true // This animation is considered essential with
+    //respect to prefers-reduced-motion
+    });
+});
+
+  const mapMe = useCallback(async () => {
+    console.log(route.params);
+    if(auth.currentUser != null){
+      const q = query(collection(db, "users"), where("uid", "==", auth.currentUser.uid));
+      const data = await getDoc(doc(db,"users", auth.currentUser.uid));
+      console.log(data);
+      console.log(data.data().isPremium);
+      var f = data.data().isPremium;
+      const querySnapshot = await getDocs(q).then((res)=>{console.log(res);return res;}).catch((err)=>{console.log(err);return err;});
+      var o = querySnapshot.size;
+      if(o > 1 && f == false) {
+        setModalVisible3(true);
+      }
+    }
+      if(route.params != undefined && map.current != null){
+        console.log(route.params.list);
+        const f = route.params.list;
+          console.log(f);
+          console.log(route.params.id);
+          var mapList = f.geo;
+      if(route.params.on == true){
+        console.log(route.params.on);
+      const target = {
+        center: [mapList[0].latlng[0],mapList[0].latlng[1]],
+        zoom: 11,
+        bearing: 0,
+        pitch: 0
+        };
+      map.current.flyTo({
+        ...target, // Fly to the selected target
+        duration: 5000, // Animate over 12 seconds
+        essential: true // This animation is considered essential with
+        //respect to prefers-reduced-motion
+        });
+        if(route.params != undefined){
+          console.log(route.params.list);
+          console.log(mk);
+          for(var h=0;h<mk.length;h++){
+            mk[h].remove();
+          }
+          setmk([]);
+          console.log(popuplist);
+          console.log(p);
+          for(var u = 0;u < p.length;u++) {
+            console.log(p[u]);
+            p[u].remove();
+          }
+          setPopupList([]);
+          // const f = route.params.list;
+          // console.log(f);
+          // console.log(route.params.id);
+          // var mapList = f.geo;
+          // console.log(mapList);
+          for(var i=0; i<mapList.length;i++){
+            //var lati = parseInt(mapList[i].latlng.split(",")[0]);
+            //var long = parseInt(mapList[i].latlng.split(",")[0]);
+            //console.log(mapList[i].properties.images);
+            // var img = [];
+            // for(var j = 0;j<mapList[i].properties.images.length;j++) {
+            //   img.push({original: mapList[i].properties.images[j].urls.regular, thumbnail: mapList[i].properties.images[j].urls.thumbnail});
+            // }
+                // create the popup
+                if(!isNaN(mapList[i].latlng[0]) && !isNaN(mapList[i].latlng[1])) {
+                var popupHTML = `<div style='display: flex;align-items: center'><div style="display: flex;flex-direction: column"><p style="font-weight: bold;font-size:large;align-items: center;display: flex;"><img width="20px" height="20px" style="filter: ${hexToCSSFilter(mapList[i].color).filter}" src=${MarkerSVG} />${mapList[i].title}</p><p style="font-weight: normal;font-size:small">${mapList[i].sentence}</p></div></div>`;
+          const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(popupHTML).setLngLat([mapList[i].latlng[0],mapList[i].latlng[1]]).addTo(map.current);
+            p.push(popup);
+          const marker = new mapboxgl.Marker({
+            color: mapList[i].color,
+            draggable: false,
+            anchor: 'center'
+            }).setLngLat([mapList[i].latlng[0],mapList[i].latlng[1]]).addTo(map.current);
+            marker.getElement().id = `${i}`;
+            marker.getElement().setAttribute('data-images', JSON.stringify(mapList[i].images))
+            marker.getElement().setAttribute('data-x', `${mapList[i].title}_${mapList[i].description}_${mapList[i].latlng[0]}_${mapList[i].latlng[1]}`);
+            marker.getElement().addEventListener('click', (event) => {
+              const r = event.target.parentElement.parentElement;
+              // console.log(r.id);
+              // console.log(event.target.parentElement.parentElement);
+              var t = document.getElementById(`${r.id}`);
+              setIndex(parseInt(r.id));
+              const g = t.getAttribute('data-x').split('_');
+              const y = t.getAttribute('data-images');
+              console.log(JSON.parse(y));
+              setImages(JSON.parse(y));
+              const target = {
+                center: [parseFloat(g[2]), parseFloat(g[3])],
+                zoom: 16,
+                bearing: 0,
+                pitch: 0
+                };
+              map.current.flyTo({
+                ...target, // Fly to the selected target
+                duration: 5000, // Animate over 12 seconds
+                essential: true // This animation is considered essential with
+                //respect to prefers-reduced-motion
+                });
+              setTitle(g[0]);
+              setDescription(g[1]);
+              setLat(parseFloat(g[2]));
+              setLng(parseFloat(g[3]));
+              console.log("hello");
+              //event.preventDefault();
+              //setImages(g[4]);
+              //setmk(marker);
+              setModalVisible2(true);
+              console.log("hello");
+              //image-gallery-description
+          });
+          console.log("hello")
+          m.push(marker);
+          console.log(m);
+        }
+        }
+        setmk(m);
+        setPopupList(p);
+        console.log(m);
+        console.log(mk);
+        console.log(p);
+        route.params.on = false;
+      }
+      }
+    }
+  }, [route.params]);
+  mapMe();
   useEffect(async() => {
+    console.log(route.params);
+    console.log("hello");
+    //   console.log(res);
+    //   setLat(res.latitude);
+    //   setLng(res.longitude);
+    //   return res;
+    // }).catch((err)=>{
+    //   console.log(err);
+    //   return err;
+    // })
+    if(auth.currentUser != null){
+      const q = query(collection(db, "users"), where("uid", "==", auth.currentUser.uid));
+      const data = await getDoc(doc(db,"users", auth.currentUser.uid));
+      console.log(data);
+      console.log(data.data().isPremium);
+      var f = data.data().isPremium;
+      const querySnapshot = await getDocs(q).then((res)=>{console.log(res);return res;}).catch((err)=>{console.log(err);return err;});
+      var o = querySnapshot.size;
+      if(o > 1 && f == false) {
+        setModalVisible3(true);
+      }
+    }
     if(map.current) return;
+    // console.log(lng);
     map.current = new mapboxgl.Map({
       container: mapContainerRef.current,
       style: 'mapbox://styles/mapbox/satellite-streets-v12?optimize=true',
       center: [lng, lat],
       zoom: zoom
     });
+    var user_location = await get_user_location();
+    console.log(user_location);
     if(route.params != undefined){
       const f = route.params.list;
         console.log(f);
@@ -275,9 +574,9 @@ const MapScreen = ({navigation, route}) => {
       console.log(route.params.on);
     const target = {
       center: [mapList[0].latlng[0],mapList[0].latlng[1]],
-      zoom: 6,
-      bearing: 130,
-      pitch: 75
+      zoom: 8,
+      bearing: 0,
+      pitch: 0
       };
     map.current.flyTo({
       ...target, // Fly to the selected target
@@ -287,10 +586,17 @@ const MapScreen = ({navigation, route}) => {
       });
       if(route.params != undefined){
         console.log(route.params.list);
+        console.log(mk);
         for(var h=0;h<mk.length;h++){
           mk[h].remove();
         }
         setmk([]);
+        console.log(p);
+        console.log(popuplist)
+        for(var u = 0;u < p.length;u++) {
+          p[u].remove();
+        }
+        setPopupList([]);
         // const f = route.params.list;
         // console.log(f);
         // console.log(route.params.id);
@@ -304,6 +610,10 @@ const MapScreen = ({navigation, route}) => {
           // for(var j = 0;j<mapList[i].properties.images.length;j++) {
           //   img.push({original: mapList[i].properties.images[j].urls.regular, thumbnail: mapList[i].properties.images[j].urls.thumbnail});
           // }
+          var popupHTML = `<div style='display: flex; align-items: center'><div style="display: flex;flex-direction: column"><p style="font-weight: bold;font-size:large"><img width="20px" height="20px" style="filter: ${hexToCSSFilter(mapList[i].color).filter}" src=${MarkerSVG} />${mapList[i].title}</p><p style="font-weight: normal;font-size:small;align-items: center;display: flex;">${mapList[i].sentence}</p></div></div>`;
+          p.push(popup);
+          const popup = new mapboxgl.Popup({ offset: 25, closeOnClick: false }).setHTML(popupHTML).setLngLat([mapList[i].latlng[0],mapList[i].latlng[1]]).addTo(map.current);
+        
         const marker = new mapboxgl.Marker({
           color: mapList[i].color,
           draggable: false,
@@ -323,11 +633,12 @@ const MapScreen = ({navigation, route}) => {
             const y = t.getAttribute('data-images');
             console.log(JSON.parse(y));
             setImages(JSON.parse(y));
+            console.log('hrllo')
             const target = {
               center: [parseFloat(g[2]), parseFloat(g[3])],
-              zoom: 6,
-              bearing: 130,
-              pitch: 75
+              zoom: 16,
+              bearing: 0,
+              pitch: 0
               };
             map.current.flyTo({
               ...target, // Fly to the selected target
@@ -335,20 +646,38 @@ const MapScreen = ({navigation, route}) => {
               essential: true // This animation is considered essential with
               //respect to prefers-reduced-motion
               });
+              // var googleMapsLink = `https://www.google.com/maps/search/?api=1&query=${parseFloat(g[2])}%2C${parseFloat(g[3])}`
+              // setGoogleMapslink(googleMapsLink);
+              // var appleMapsLink = `http://maps.apple.com/?ll=${parseFloat(g[2])},${parseFloat(g[3])}`;
+              // setAppleMapslink(appleMapsLink);
+              // var cityMapperLink = `https://citymapper.com/directions?endcoord=${parseFloat(g[2])}%2C${parseFloat(g[3])}`;
+              // setCityMapperlink(cityMapperLink);
+              // var wazeLink = `https://www.waze.com/ul?ll=${parseFloat(g[2])}%2C${parseFloat(g[3])}&navigate=yes`;
+              // setWazeMapslink(wazeLink);
             setTitle(g[0]);
             setDescription(g[1]);
             setLat(parseFloat(g[2]));
             setLng(parseFloat(g[3]));
+            console.log("hello");
             //event.preventDefault();
             // setImages(g[4]);
             //setmk(marker);
             setModalVisible2(true);
+            setModalVisible4(true);
+            logEvent("open_modal");
+            console.log("hello");
             //image-gallery-description
         });
     
         m.push(marker);
       }
       setmk(m);
+      console.log(m);
+      console.log(mk);
+      console.log(p);
+      for(var i=0; i<mk.length;i++){
+        console.log(mk[i]);
+      }
       route.params.on = false;
     }
     }
@@ -375,146 +704,373 @@ const MapScreen = ({navigation, route}) => {
       accessToken: mapboxgl.accessToken,
       mapboxgl: mapboxgl
     }), "top-left");
-    map.current.addControl(new mapboxgl.FullscreenControl(), "bottom-right");
-    map.current.on('click', (event) => {
+    //map.current.addControl(new mapboxgl.FullscreenControl(), "top-right");
+    // map.current.on('click', (event) => {
 
-    })
-    map.current.on('load', () => {
+    // })
+    // map.current.on('load', () => {
 
-    })
-    map.current.addControl(new mapboxgl.GeolocateControl({
-      positionOptions: {
-          enableHighAccuracy: true
-      },
-      trackUserLocation: true,
-      showUserHeading: true
-  }));
+    // })
+  //   map.current.addControl(new mapboxgl.GeolocateControl({
+  //     positionOptions: {
+  //         enableHighAccuracy: true
+  //     },
+  //     trackUserLocation: true,
+  //     showUserHeading: true
+  // }), "bottom-right");
   const nav = new mapboxgl.NavigationControl({
     visualizePitch: true
 });
   map.current.addControl(nav, 'bottom-right');
-      class ShareButton {
-      onAdd(map) {
-        const div = document.createElement("div");
-        div.className = "mapboxgl-ctrl mapboxgl-ctrl-group";
-        div.innerHTML = `<button class="" style="display: flex;
-        align-items: center;
-        padding: 5px;
-        background: transparent;justify-content: center;">
+    //   class ShareButton {
+    //   onAdd(map) {
+    //     const div = document.createElement("div");
+    //     div.className = "mapboxgl-ctrl mapboxgl-ctrl-group";
+    //     div.innerHTML = `<button class="" style="display: flex;
+    //     align-items: center;
+    //     padding: 5px;
+    //     background: transparent;justify-content: center;">
           
-        <img width="24" height="24" src="https://img.icons8.com/ios-glyphs/30/share-rounded.png" alt="share-rounded"/>
-        </button>`;
-        //div.addEventListener("contextmenu", (e) => e.preventDefault());
-        div.addEventListener("click", async () => {
-          var index = parseInt(route.params.id) == undefined ? 0 : parseInt(route.params.id);
-          if (navigator.share) { 
-            await navigator.share({
-              title: `${d.title}`,
-              url: `https://askatlas.org/sharedmap?uid=${auth.currentUser.uid}&index=${index}`
-            }).then(() => {
-              console.log('Thanks for sharing!');
-              return ;
-            }).catch(console.error);
-            } else {
-              return ;
-            }
-        });
+    //     <img width="24" height="24" src="https://img.icons8.com/ios-glyphs/30/share-rounded.png" alt="share-rounded"/>
+    //     </button>`;
+    //     //div.addEventListener("contextmenu", (e) => e.preventDefault());
+    //     div.addEventListener("click", async () => {
+    //       var index = parseInt(route.params.id) == undefined ? 0 : parseInt(route.params.id);
+    //       if (navigator.share) { 
+    //         await navigator.share({
+    //           title: `${d.title}`,
+    //           url: `https://askatlas.org/sharedmap?uid=${auth.currentUser.uid}`
+    //         }).then(() => {
+    //           console.log('Thanks for sharing!');
+    //           return ;
+    //         }).catch(console.error);
+    //         } else {
+    //           return ;
+    //         }
+    //     });
   
-        return div;
-      }
-    }
-    const shareButton = new ShareButton();
+    //     return div;
+    //   }
+    // }
+    // const shareButton = new ShareButton();
     //map.current.addControl(shareButton, "top-right");
 
     class nextButton {
       onAdd(map) {
         const div = document.createElement("div");
         div.className = "mapboxgl-ctrl mapboxgl-ctrl-group";
-        div.innerHTML = `<button class="" style="display: flex;
-        align-items: center;
-        padding: 5px;
-        background: transparent;justify-content: center;">
-          
-        <img width="24" height="24" src="https://img.icons8.com/ios-filled/50/marker.png" alt="marker"/>
+        div.innerHTML = `<button class="" style="display: flex;align-items: center;padding: 5px;background: transparent;justify-content: center;">
+          <img width="24" height="24" src="https://img.icons8.com/ios-filled/50/marker.png" alt="marker"/>
         </button>`;
         //div.addEventListener("contextmenu", (e) => e.preventDefault());
         div.addEventListener("click", async () => {
-          var index = parseInt(route.params.id) == undefined ? 0 : parseInt(route.params.id);
-          const target = {
-            center: [list[index][0], list[index][0]],
-            zoom: 6,
-            bearing: 130,
-            pitch: 75
-            };
-          map.current.flyTo({
-            ...target, // Fly to the selected target
-            duration: 5000, // Animate over 12 seconds
-            essential: true // This animation is considered essential with
-            //respect to prefers-reduced-motion
-            });
+          console.log(index);
+          console.log(m);
+          console.log(m[index].getLngLat().lat);
+          //m[index].getElement().click();
+          //console.log(m[index]._lngLat.longitude);
+          var nextIndex = index + 1;
+          if(nextIndex == m.length){
+            nextIndex = 0;
+          }
+          nextMarkerF(m[nextIndex].getLngLat().lng, m[nextIndex].getLngLat().lat);
+          setIndex(nextIndex);
+          //var index = parseInt(route.params.id) == undefined ? 0 : parseInt(route.params.id);
+          // const target = {
+          //   center: [m[nextIndex].getLngLat().lng, m[nextIndex].getLngLat().lat],
+          //   zoom: 10,
+          //   bearing: 0,
+          //   pitch: 0
+          //   };
+          // map.current.flyTo({
+          //   ...target, // Fly to the selected target
+          //   duration: 5000, // Animate over 12 seconds
+          //   essential: true // This animation is considered essential with
+          //   //respect to prefers-reduced-motion
+          //   });
         });
   
         return div;
       }
     }
-    const nextMarkerButton = new nextButton();
-    map.current.addControl(nextMarkerButton, "bottom-right");
+    //const nextMarkerButton = new nextButton();
+    //map.current.addControl(nextMarkerButton, "bottom-right");
  
   }, []); //eslint-disable-line react-hooks/exhaustive-deps
-  console.log(document.getElementsByClassName("image-gallery-description"));
-  var t = document.getElementsByClassName("image-gallery-description");
-  console.log(t.item(0));
-  for (var i = 0; i < t.length; i++) {
-    console.log("hello");
-    console.log(t[i]);
+  // console.log(document.getElementsByClassName("image-gallery-description"));
+  // var t = document.getElementsByClassName("image-gallery-description");
+  // console.log(t.item(0));
+  // for (var i = 0; i < t.length; i++) {
+  //   //console.log("hello");
+  //   console.log(t[i]);
+  // }
+  // for (var i = 0; i < document.getElementsByClassName("image-gallery-description").length; i++) {
+  //   console.log(document.getElementsByClassName("image-gallery-description")[i].innerHTML);
+  // }
+  function getOS() {
+    const userAgent = window.navigator.userAgent,
+        platform = window.navigator?.userAgentData?.platform || window.navigator.platform,
+        macosPlatforms = ['macOS', 'Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'],
+        windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'],
+        iosPlatforms = ['iPhone', 'iPad', 'iPod'];
+    let os = null;
+  
+    if (macosPlatforms.indexOf(platform) !== -1) {
+      os = 'Mac OS';
+    } else if (iosPlatforms.indexOf(platform) !== -1) {
+      os = 'iOS';
+    } else if (windowsPlatforms.indexOf(platform) !== -1) {
+      os = 'Windows';
+    } else if (/Android/.test(userAgent)) {
+      os = 'Android';
+    } else if (/Linux/.test(platform)) {
+      os = 'Linux';
+    }
+  
+    return os;
   }
-  for (var i = 0; i < document.getElementsByClassName("image-gallery-description").length; i++) {
-    console.log(document.getElementsByClassName("image-gallery-description")[i].innerHTML);
-  }
+
+  
   return (
     <div>
       <div className='map-container' id="map" ref={mapContainerRef} />
       <>
+      <Modal
+  animationType="slide"
+  transparent={true}
+  visible={modalVisible4}
+  onShow={()=>{
+    if(getOS() == "iOS") {
+      setReviewLink("https://apps.apple.com/us/app/ask-atlas-ai/id6477133776");
+    }
+
+    $("#review-button").click(function() {
+      logEvent("yes_review");
+    })
+  }}
+  onRequestClose={() => {
+    setModalVisible4(!modalVisible4);
+  }}>
+        <View style={styles.centeredView2}>
+          <View style={styles.modalView2}>
+          <div className="topBar2">
+        <div className="topBarClose">
+          <img height="36" width="36" src={CloseButton} alt="close" onClick={() => setModalVisible4(!modalVisible4)}/>
+        </div>
+      </div>
+      <div class="review-container">
+      <h1 class="review-title">Help Us Improve!</h1>
+<p class="review-question">Are you loving Ask Atlas AI? Your feedback matters to us!</p>
+<a id="review-button" href={reviewLink} class="review-button">Yes, I'm a Fan!</a>
+<button class="review-button review-button-later" onClick={() => {logEvent("ask_me_later_review");setModalVisible4(!modalVisible4)}}>Remind Me Later</button>
+      </div>
+          </View>
+          </View>
+</Modal>
+      <Modal
+  animationType="slide"
+  transparent={true}
+  visible={modalVisible3}
+  onShow={()=>{
+    function gtag_report_conversion(url) {
+      var callback = function () {
+        if (typeof(url) != 'undefined') {
+          window.location = url;
+        }
+      };
+      gtag('event', 'purchase', {
+          'send_to': 'AW-16493182687/kTjKCMrc7ZsZEN_9x7g9',
+          'value': 19.99,
+          'currency': 'USD',
+          'transaction_id': '',
+          'event_callback': callback
+      });
+      gtag('event', 'conversion', {
+        'send_to': 'AW-16493182687/SzM6CN_LlKIZEN_9x7g9',
+        'event_callback': callback
+    });
+      return false;
+    }
+    document.addEventListener('click', function(e) {
+      if (e.target.matches('a[href="https://buy.stripe.com/28o28y37S5G24la148"] *')) {
+        gtag('event', 'purchase', {
+          'send_to': 'G-22HJ6GSR49/kTjKCMrc7ZsZEN_9x7g9'
+        });
+        gtag_report_conversion("https://buy.stripe.com/28o28y37S5G24la148");
+      }
+
+      if (e.target.matches('a[href="https://buy.stripe.com/7sI6oOgYIc4q9Fu3ch"] *')) {
+        gtag('event', 'purchase', {
+          'send_to': 'G-22HJ6GSR49/kTjKCMrc7ZsZEN_9x7g9'
+        });
+        gtag_report_conversion("https://buy.stripe.com/7sI6oOgYIc4q9Fu3ch");
+      }
+    })
+  }}
+  onRequestClose={() => {
+    setModalVisible3(!modalVisible3);
+    //setModalVisible4(true);
+  }}>
+  <View style={styles.centeredView}>
+    <View style={styles.productView}>
+    <ScrollView>
+      <>
+      <div class="subscription-page-body">
+      <div className="topBar2">
+        <div className="topBarClose">
+          <img height="36" width="36" src={CloseButton} alt="close" onClick={() => {
+            setModalVisible3(!modalVisible3);
+            }}/>
+        </div>
+      </div>
+      <div class="subscription-container">
+      <h1 class="subscription-page-heading">Elevate Your AI Experience with Ask Atlas Premium – Subscribe Now!</h1>
+   
+   <div class="subscription-plans-container">
+       <div class="subscription-plan-card">
+           <h2>Monthly</h2>
+           <p class="subscription-plan-price">$9.99/month</p>
+           <ul class="subscription-plan-features">
+               <li class="subscription-plan-feature">Ad-free browsing</li>
+               <li class="subscription-plan-feature">Exclusive premium content</li>
+               <li class="subscription-plan-feature">Advanced app features</li>
+               <li class="subscription-plan-feature">Priority customer support</li>
+               <li class="subscription-plan-feature">7-Day Free Trial</li>
+           </ul>
+           <div class="user-id-container">
+        <button class="copy-button" onClick={()=>{copyToClipboard()}}>Copy UID</button>
+    </div>
+           <a id="month-plan" class="subscription-plan-button" href="https://buy.stripe.com/28o28y37S5G24la148">Subscribe Now</a>
+       </div>
+       
+       <div class="subscription-plan-card">
+           <span class="subscription-plan-most-popular">Best Value</span>
+           <h2>Annual</h2>
+           <p class="subscription-plan-price">$49.99/year</p>
+           <ul class="subscription-plan-features">
+               <li class="subscription-plan-feature">Everything in Monthly</li>
+               <li class="subscription-plan-feature">7 months free (~60% off)</li>
+               <li class="subscription-plan-feature">7-Day Free Trial</li>
+           </ul>
+           <div class="user-id-container">
+        <button class="copy-button" onClick={()=>{copyToClipboard()}}>Copy UID</button>
+    </div>
+           <a id="year-plan" class="subscription-plan-button" href="https://buy.stripe.com/7sI6oOgYIc4q9Fu3ch">Subscribe Now</a>
+       </div>
+   </div>
+  </div>
+  <div class="faq">
+  <br></br>
+        <h3>Frequently Asked Questions</h3>
+        <p><strong>Q: Is it secure?</strong><br></br>
+        A: Absolutely. We use industry-standard encryption and security practices to keep your information safe.
+        </p>
+        <br></br>
+        <p><strong>Q: Can I cancel my subscription at any time?</strong><br></br>
+A: Yes, absolutely! We believe in providing flexibility to our subscribers. You can easily cancel your subscription at any time from your account settings. There are no long-term commitments or contracts, so you can cancel whenever you need to without any hassle.
+</p>
+<br></br>
+<p><strong>Q: Is my payment information secure?</strong><br></br>
+A: Your security is our top priority. We use industry-standard encryption and advanced security practices to protect your payment information. We never store your full credit card details, and all transactions are processed through trusted, third-party payment gateways. You can have peace of mind knowing that your financial data is safe with us.
+</p>
+<br></br>
+<p><strong>Q: What happens after I subscribe?</strong><br></br>
+A: Once you complete your subscription, you'll instantly gain access to all the premium features and exclusive content. You can start exploring ad-free, unlocking advanced functionality, and enjoying priority support right away. We'll also send you a welcome email with additional information and tips to help you make the most of your premium experience.
+</p>
+<br></br>
+<p><strong>Q: Can I change my subscription plan later?</strong><br></br>
+A: Yes, you can easily switch between the monthly and yearly plans at any time. If you start with a monthly plan and decide you want to upgrade to the yearly plan for better value, simply visit your account settings and make the change. We'll prorate the charges based on your remaining subscription period, so you won't lose any money.
+</p>
+<br></br>
+<p><strong>Q: What if I'm not satisfied with my premium subscription?</strong><br></br>
+A: We're confident that you'll love the premium features and find great value in your subscription. However, if for any reason you're not completely satisfied, we offer a 30-day money-back guarantee. If you cancel within the first 30 days, we'll issue a full refund, no questions asked. We want you to have a fantastic experience and will work hard to ensure your satisfaction.
+</p>
+<br></br>
+<p><strong>Q: How can I get support if I have questions or need help?</strong><br></br>
+A: As a premium subscriber, you'll have access to our dedicated priority support team. If you have any questions, encounter any issues, or need assistance, simply reach out to our support staff through the provided channels. We're here to help you and ensure that you have a smooth and enjoyable premium experience.
+</p>
+    </div>
+
+    <div class="guarantee">
+        All plans come with our 30-day money-back guarantee. Try risk-free!
+    </div>
+   </div>
+      </>
+      </ScrollView>
+    </View>
+  </View>
+</Modal>
           <Modal
-              {...handlers2}
               animationType="slide"
               transparent={true}
               visible={modalVisible2}
               onShow={()=>{
-                var t = document.getElementsByClassName("image-gallery-description");
-                console.log(t.item(0));
-                for (var i = 0; i < t.length; i++) {
-                  console.log("hello");
-                  console.log(t[i]);
-                }
+                //var t = document.getElementsByClassName("image-gallery-description");
+                //console.log(t.item(0));
+                //for (var i = 0; i < t.length; i++) {
+                  //console.log("hello");
+                  //console.log(t[i]);
+                //}
                 for (var i = 0; i < document.getElementsByClassName("image-gallery-description").length; i++) {
                   console.log(document.getElementsByClassName("image-gallery-description")[i].innerHTML);
-                  document.getElementsByClassName("image-gallery-description")[i].innerHTML = `Photo by <a href='${images[i].userUrl}'>${images[i].userName}</a> on <a href='https://unsplash.com/'>Unsplash</a>`
+                  console.log(images[i]);
+                  document.getElementsByClassName("image-gallery-description")[i].innerHTML = `Photo by <a style="color: white" href='${images[i].userUrl}?utm_source=atlasai&utm_medium=referral'>${images[i].userName}</a> on <a style="color: white" href='https://unsplash.com/?utm_source=atlasai&utm_medium=referral'>Unsplash</a>`
                 }
               }}
-              onRequestClose={() => {
+              onRequestClose={async () => {
                 setModalVisible2(!modalVisible2);
+                const data = await getDoc(doc(db,"users", auth.currentUser.uid));
+                f = data.data().isPremium;
+                if(getOS() == "iOS" && f == false){
+                  Alert.alert('Write a review', 'Are you enjoying our app?', [
+                    {text: 'Yes', onPress: () => {
+                      const link = document.createElement('a');
+                      link.href = "https://apps.apple.com/us/app/ask-atlas-ai/id6477133776";
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                      logEvent(analytics, 'send_review_yes');
+                    }},
+                    {text: 'Maybe Later', onPress: () => {logEvent(analytics, 'send_review_no');}},
+                  ]);
+                } else if(getOS() == "Android" && f == false){
+                  Alert.alert('Write a review', 'Are you enjoying our app?', [
+                    {text: 'Yes', onPress: () => {
+                      const link = document.createElement('a');
+                      link.href = "https://play.google.com/store/apps/details?id=com.firebaseapp.atlasai.twa";
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                      logEvent(analytics, 'send_review_yes');
+                    }},
+                    {text: 'Maybe Later', onPress: () => {logEvent(analytics, 'send_review_no');}},
+                  ]);
+                }
+
               }}>
                 <>
                 <View style={styles.centeredView}>
                   <View style={styles.modalView}>
                     <div className="topBar">
-                      <div className="topBarLeft"></div>
+                      <div className="topBarClose">
+                        <img height="36" width="36" src={CloseButton} alt="close" onClick={() => setModalVisible2(!modalVisible2)}/>
+                      </div>
                     <div>
                       <h3>{title}</h3>
                     </div>
+                    <ScrollView contentContainerStyle={{ height: '80vh', flexGrow: 1, width: '100%', justifyContent: 'start', alignItems: 'start'}}>
                     <div style={styles.titleBox}>
                   <ImageGallery
                     ref={imageRef}      
                     showIndex={true}
-                    showBullets={true}
+                    showBullets={false}
                     infinite={true}
                     showThumbnails={true}
                     showFullscreenButton={true}
                     showGalleryFullscreenButton={true}
                     showPlayButton={true}
                     showGalleryPlayButton={true}
-                    showNav={true}
+                    showNav={false}
                     isRTL={false}
                     originalHeight={100}
                     originalWidth={100}
@@ -526,30 +1082,30 @@ const MapScreen = ({navigation, route}) => {
                     useWindowKeyDown={true} 
                     items={images} />
                     </div>
-                    {}
                     <div style={{display: "flex", justifyContent: "space-evenly", width: "100%"}}>
-                        <button style={{border: "none", display: "flex", alignItems: "center", fontSize: "24px", fontWeight: "bold"}} onClick={()=>{
+                        <button style={{border: "none", display: "flex", alignItems: "center", fontSize: "20px", fontWeight: "bold", color: "black"}} onClick={()=>{
                           const link = document.createElement('a');
-                          link.href = images[parseInt(document.getElementsByClassName("image-gallery-index-current")[0].innerHTML)].downloadUrl;
+                          link.href = images[(parseInt(document.getElementsByClassName("image-gallery-index-current")[0].innerHTML) - 1)].downloadUrl;
                           link.setAttribute('download', 'image.jpg');
                           document.body.appendChild(link);
                           link.click();
                           document.body.removeChild(link);
                             console.log(images[parseInt(document.getElementsByClassName("image-gallery-index-current")[0].innerHTML)].downloadUrl)
                           }} className='image-gallery-custom-action card'>
-                          <img style={{marginRight: '0.5rem'}} width="36" height="36" src="https://img.icons8.com/ios-glyphs/60/download--v1.png" alt="download--v1"/>
+                          <img style={{marginRight: '0.5rem', color: "black"}} width="30" height="30" src="https://img.icons8.com/ios-glyphs/60/download--v1.png" alt="download--v1"/>
                           Download
                         </button>
-                      <button style={{border: "none", display: "flex", alignItems: "center", fontSize: "24px", fontWeight: "bold"}} onClick={()=>{setModalVisible(true)}} className='image-gallery-custom-action card'>
-                        <img style={{marginRight: '0.5rem'}} width="36" height="36" src="https://img.icons8.com/ios/50/east-direction.png" alt="east-direction"/>
+                      {/* <button style={{border: "none", display: "flex", alignItems: "center", fontSize: "20px", fontWeight: "bold", color: "black"}} onClick={()=>{setModalVisible(true)}} className='image-gallery-custom-action card'>
+                        <img style={{marginRight: '0.5rem'}} width="30" height="30" src="https://img.icons8.com/ios/50/east-direction.png" alt="east-direction"/>
                         Navigate
-                      </button>
+                      </button> */}
                     </div>
               <div className='descriptionBox'>
                 <p className="mapDescription">
                   {description}
                 </p>
               </div>
+              </ScrollView>
               </div>
               <div className="map_points">
               </div>
@@ -566,38 +1122,38 @@ const MapScreen = ({navigation, route}) => {
                 setModalVisible(!modalVisible);
               }}>
               <View style={styles.centeredView}>
-                <View style={styles.modalView}>
+                <View style={styles.shareView}>
               <div className="topBarLeft"></div>
                 <div style={{width: '100%', display: 'flex', justifyContent: 'center', borderBottom: '1px solid lightgrey', lineHeight: '2.5rem'}}>
                   <h3>Navigate</h3>
                 </div>
-                <div style={{display: 'flex', overflowY: 'visible', width: '100%'}}>
+                <div style={{display: 'flex', overflowY: 'visible'}}>
                   <div className='nav_button' style={{marginLeft: '0px'}}>
-                    <a className="nav_link" href=''>
-                      <img className="nav_images" width="64" height="64" src="https://img.icons8.com/external-those-icons-flat-those-icons/48/external-Google-Maps-logos-and-brands-those-icons-flat-those-icons.png" alt="external-Google-Maps-logos-and-brands-those-icons-flat-those-icons"/>
-                      <p>Google Maps</p>
+                    <a style={{color: 'grey'}} className="nav_link" href={googleMapsLink}>
+                      <img className="nav_images" width="64" height="64" src="https://img.icons8.com/external-those-icons-flat-those-icons/96/external-Google-Maps-logos-and-brands-those-icons-flat-those-icons.png" alt="external-Google-Maps-logos-and-brands-those-icons-flat-those-icons"/>
+                      <p style={{textWrap: 'nowrap'}}>Google Maps</p>
                     </a>
                   </div>
                   <div className='nav_button'>
-                    <a className="nav_link">
-                      <img className="nav_images" width="64" height="64" src="https://img.icons8.com/color/48/apple-map.png" alt="apple-map"/>                    
-                      <p>Apple Maps</p>
+                    <a style={{color: 'grey'}} className="nav_link" href={appleMapsLink}>
+                      <img className="nav_images" width="64" height="64" src={AppleMapsLogo} alt="apple-map"/>                    
+                      <p style={{textWrap: 'nowrap'}}>Apple Maps</p>
                     </a>
                   </div>
                   <div className='nav_button'>
-                    <a className="nav_link">
+                    <a style={{color: 'grey'}} className="nav_link" href={citymapperMapsLink}>
                       <img className="nav_images" width="64" height="64" src={CityMapper} alt="citymapper"/>                    
                       <p>Citymapper</p>
                     </a>
                   </div>
                   <div className='nav_button'>
-                    <a className="nav_link">
+                    <a style={{color: 'grey'}} className="nav_link" href={wazeMapsLink}>
                       <img className="nav_images" width="64" height="64" src={Waze} alt="waze"/>                    
                       <p>Waze</p>
                     </a>
                   </div>
                 </div>
-                <div style={{display: 'contents'}}>
+                {/* <div style={{display: 'contents'}}>
                 <div style={{display: 'flex', overflowY: 'visible', width: '100%'}}>
                   <div className='nav_button' style={{marginLeft: '0px'}}>
                     <a className="nav_link">
@@ -612,7 +1168,7 @@ const MapScreen = ({navigation, route}) => {
                     </a>
                   </div>
                 </div>
-                </div>
+                </div> */}
                 </View>
                 </View>
                 </Modal>
@@ -878,7 +1434,7 @@ function MyTabs() {
 }
 
 function Profile({ navigation }) {
-  //const [billing, setBilling] = useState(`https://billing.stripe.com/p/login/7sI6rY1MOdMAdOM8ww?prefilled_email=${auth.currentUser.email}`);
+  const [billing, setBilling] = useState(`https://billing.stripe.com/p/login/7sI6rY1MOdMAdOM8ww`);
   //let [open,setOpen] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [user, setUser] = useState(auth.currentUser);
@@ -888,8 +1444,8 @@ function Profile({ navigation }) {
   } else {
     au = false;
   }
-  console.log(au);
-  console.log(user.displayName);
+  //console.log(au);
+  //console.log(user.displayName);
   const handlers = useSwipeable({
     onSwipedDown: () => {setModalVisible(!modalVisible);},
     //onTap: () => {setModalVisible(!modalVisible);},
@@ -926,12 +1482,12 @@ function Profile({ navigation }) {
   // }).catch((error) => {
   //   console.log("Error upgrading anonymous account", error);
   // });
-      console.log(credential);
+      //console.log(credential);
       console.log(result);
       const token = credential.accessToken;
       // The signed-in user info.
       const user = result.user;
-      console.log(user);
+      //console.log(user);
       setUser(user);
       await Initialize(user).then((res)=>{
         console.log(res);
@@ -1023,60 +1579,15 @@ const signInWithApple = async () => {
         <div className="profile_button_box">
         <div class="settings-container">
   <section class="settings">
-    <header class="account-header">
-      <h3>Sign In</h3>
-    </header>
-    {au ?
-    <div class="account-info">
-    <div className="signin_button_box">
-          <button className="google-sign-in" onClick={
-            async ()=>{
-            return await signInWithGoogle().then((res)=>{
-              console.log(res);
-              return res;
-              }).catch((err)=>{
-                console.log(err);
-                return err;
-              });
-              }
-            }>
-              <img width="30" height="30" src="https://img.icons8.com/color/48/google-logo.png" alt="google-logo"/>
-            {/* <img src={GoogleIcon} style={{width:"30px",height:"30px"}}/> */}
-            &nbsp;Continue with Google</button>
-            <button class="apple-sign-in" onClick={
-              async ()=>{
-            return await signInWithApple().then((res)=>{
-              console.log(res);
-              return res;
-              }).catch((err)=>{
-                console.log(err);
-                return err;
-              });
-              }}>
-<img alt="svgImg" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHg9IjBweCIgeT0iMHB4IiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHZpZXdCb3g9IjAsMCwyNTYsMjU2IgpzdHlsZT0iZmlsbDojMDAwMDAwOyI+CjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtcnVsZT0ibm9uemVybyIgc3Ryb2tlPSJub25lIiBzdHJva2Utd2lkdGg9IjEiIHN0cm9rZS1saW5lY2FwPSJidXR0IiBzdHJva2UtbGluZWpvaW49Im1pdGVyIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHN0cm9rZS1kYXNoYXJyYXk9IiIgc3Ryb2tlLWRhc2hvZmZzZXQ9IjAiIGZvbnQtZmFtaWx5PSJub25lIiBmb250LXdlaWdodD0ibm9uZSIgZm9udC1zaXplPSJub25lIiB0ZXh0LWFuY2hvcj0ibm9uZSIgc3R5bGU9Im1peC1ibGVuZC1tb2RlOiBub3JtYWwiPjxnIHRyYW5zZm9ybT0ic2NhbGUoOC41MzMzMyw4LjUzMzMzKSI+PHBhdGggZD0iTTI1LjU2NSw5Ljc4NWMtMC4xMjMsMC4wNzcgLTMuMDUxLDEuNzAyIC0zLjA1MSw1LjMwNWMwLjEzOCw0LjEwOSAzLjY5NSw1LjU1IDMuNzU2LDUuNTVjLTAuMDYxLDAuMDc3IC0wLjUzNywxLjk2MyAtMS45NDcsMy45NGMtMS4xMTksMS43MDMgLTIuMzYxLDMuNDIgLTQuMjQ3LDMuNDJjLTEuNzk0LDAgLTIuNDM4LC0xLjEzNSAtNC41MDgsLTEuMTM1Yy0yLjIyMywwIC0yLjg1MiwxLjEzNSAtNC41NTQsMS4xMzVjLTEuODg2LDAgLTMuMjIsLTEuODA5IC00LjQsLTMuNDk2Yy0xLjUzMywtMi4yMDggLTIuODM2LC01LjY3MyAtMi44ODIsLTljLTAuMDMxLC0xLjc2MyAwLjMwNywtMy40OTYgMS4xNjUsLTQuOTY4YzEuMjExLC0yLjA1NSAzLjM3MywtMy40NSA1LjczNCwtMy40OTZjMS44MDksLTAuMDYxIDMuNDE5LDEuMjQyIDQuNTIzLDEuMjQyYzEuMDU4LDAgMy4wMzYsLTEuMjQyIDUuMjc0LC0xLjI0MmMwLjk2NiwwLjAwMSAzLjU0MiwwLjI5MiA1LjEzNywyLjc0NXpNMTUuMDAxLDYuNjg4Yy0wLjMyMiwtMS42MSAwLjU2NywtMy4yMiAxLjM5NSwtNC4yNDdjMS4wNTgsLTEuMjQyIDIuNzI5LC0yLjA4NSA0LjE3LC0yLjA4NWMwLjA5MiwxLjYxIC0wLjQ5MSwzLjE4OSAtMS41MzMsNC4zMzljLTAuOTM1LDEuMjQyIC0yLjU0NSwyLjE3NyAtNC4wMzIsMS45OTN6Ij48L3BhdGg+PC9nPjwvZz4KPC9zdmc+"/>
-&nbsp;Continue with Apple</button>
-        </div>
-    </div> :  
-    <>     
-    {/* <p class="email"><img width="24" height="24" src="https://img.icons8.com/ios/50/new-post--v1.png" alt="new-post--v1"/>&nbsp;Email: {user == null?"":user.email}</p> */}
-      {/* <p class="username"><img width="24" height="24" src="https://img.icons8.com/ios/50/guest-male.png" alt="guest-male"/>&nbsp;Display Name: {user == null?"":user.displayName}</p> */}
-      <button class="btn-sign-out" role="button" onClick={
-        async () => {
-          return await signOut(auth).then((res)=>{
-    console.log(res);
-    return res;
-  }).catch((err)=>{
-    console.log(err);
-    return err;
-  })
-  }}>
-    Sign out
-  </button>
-  </>
-}
-<div class="card_blog" style={{width: '95%', margin: 'auto', padding: '0px'}}>
+  <a class="p_button stripe" role="button" target='_blank' href={billing}>
+            <div class="profile_label">
+            <img src={BillingIcon} className='settings'/>
+            <p class="profile_title_point">Manage Billing</p>   
+          </div>
+        </a>
+<div class="card_blog" style={{width: '95%', margin: 'auto', padding: '0px', marginTop: '1rem'}}>
     <div class="card__header">
-      <img src="https://source.unsplash.com/600x400/?computer" alt="card__image" class="card__image" width="600"></img>
+      <img src="https://source.unsplash.com/600x400/?computer" alt="card__image" class="card__image" width="100%"></img>
     </div>
     <div class="card__body">
       <span class="tag tag-blue">Technology</span>
@@ -1101,7 +1612,7 @@ const signInWithApple = async () => {
         <img width="24" height="24" src="https://img.icons8.com/ios-glyphs/30/chevron-right.png" alt="chevron-right"/>
       </div>
       <div className='section-container'>
-        <a href="https://askatlas.org/"><img width="24" height="24" src="https://img.icons8.com/ios/50/info--v1.png" alt="info--v1"/>&nbsp;What is Ask Atlas?</a>
+        <a href="https://askatlas.org/"><img width="24" height="24" src="https://img.icons8.com/ios/50/info--v1.png" alt="info--v1"/>&nbsp;What is Ask Atlas AI?</a>
         <img width="24" height="24" src="https://img.icons8.com/ios-glyphs/30/chevron-right.png" alt="chevron-right"/>
       </div>
       <div className='section-container'>
@@ -1145,44 +1656,16 @@ const signInWithApple = async () => {
     </header>
     <div className="about-section">
       <div className='section-container'>
-        <a href="#"><img width="24" height="24" src="https://img.icons8.com/ios/50/privacy-policy.png" alt="privacy-policy"/>&nbsp;Privacy policy</a>
+        <a href="https://askatlas.org/privacy"><img width="24" height="24" src="https://img.icons8.com/ios/50/privacy-policy.png" alt="privacy-policy"/>&nbsp;Privacy policy</a>
         <img width="24" height="24" src="https://img.icons8.com/ios-glyphs/30/chevron-right.png" alt="chevron-right"/>
       </div>
       <div className='section-container'>
-        <a href="#"><img width="24" height="24" src="https://img.icons8.com/ios/50/terms-and-conditions.png" alt="terms-and-conditions"/>&nbsp;Terms of service</a>
+        <a href="https://askatlas.org/terms"><img width="24" height="24" src="https://img.icons8.com/ios/50/terms-and-conditions.png" alt="terms-and-conditions"/>&nbsp;Terms of service</a>
         <img width="24" height="24" src="https://img.icons8.com/ios-glyphs/30/chevron-right.png" alt="chevron-right"/>
       </div>
     </div>
-    {au ? <span></span> :
-    <>
-    <header class="legal-header">
-      <h3>Danger Area</h3>
-    </header>
-    <div class="account-actions">
-      <div class="danger-area">
-        <button class="btn-delete-account" 
-        onClick={
-          async()=>{
-            const userRef = doc(db, "users", auth.currentUser.uid);
-            await updateDoc(userRef, {
-              data: '[]',
-              lastLoggedIn: serverTimestamp()
-            });
-            return await signOut(auth).then((res)=>{
-              console.log(res);
-              return res;
-            }).catch((err)=>{
-              console.log(err);
-              return err;
-            })
-          }}
-        >Delete account</button>
-      </div>
-      </div>
-      </>
-      }
           <div class="app-version">
-          Ask Atlas v1.0.1 • Build 8732
+          Ask Atlas v1.0.1 • Build 8732<br></br>UID: {user.uid}
         </div>
   </section>
 </div>
@@ -1197,18 +1680,22 @@ const signInWithApple = async () => {
     let listRef = useRef({});
     const [user, setUser] = useState(auth.currentUser);
     let [text, setText] = useState('');
+    var usertext = useRef('');
     const [disabled, setDisabled] = useState(false);
     const [disabled2, setDisabled2] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const [modalVisible2, setModalVisible2] = useState(false);
+    const [modalVisible3, setModalVisible3] = useState(false);
     const [list, setList] = React.useState({});
-    const [title, setTitle] = useState("");
+    const [title, setTitle] = useState("Ask Atlas AI");
     const [description, setDescription] = useState("");
     const [pointTitle, setPointTitle] = useState("");
     const [pointDescription, setPointDescription] = useState("");
     const [lng, setlng] = useState(0);
     const [lat, setlat] = useState(0);
     const [mapList,setMapList] = useState(null);
+    const [shareUrl, setShare] = useState("");
+    const sh = useRef('');
     const Access_Key = 'tKqmTYXWxWdvGHHlbO8OtfdtJMYaz0KXKWKyCaG61u4';
     const fetchRequest = async (img) => {
       const data = await fetch(
@@ -1221,6 +1708,12 @@ const signInWithApple = async () => {
     };
     const handlers = useSwipeable({
       onSwipedDown: () => {setModalVisible(!modalVisible);},
+      //onTap: () => {setModalVisible(!modalVisible)}
+    });
+
+    const handlers2 = useSwipeable({
+      onSwipedDown: () => {setModalVisible2(!modalVisible2);},
+      //onTap: () => {setModalVisible(!modalVisible)}
     });
     function cleanText(text) {
       // This will remove \n and \ from the text
@@ -1251,11 +1744,13 @@ const signInWithApple = async () => {
     
     // const keyValuePairs = captureKeyValuePairs(jsonString);
     // console.log(keyValuePairs);
+    // function removeDoubleQuotes(inputString) {
+    //   // This regex matches all double quotes and new lines
+    //   return inputString.replace(/"|\n/g, '');
+    // }
     function removeDoubleQuotes(inputString) {
-      // This regex matches all double quotes
-      return inputString.replace(/"/g, '');
+      return inputString.replace(/["/\\\\]/g, '');
     }
-    
     // Example usage
     // const stringWithQuotes = 'This is a "sample" string with "double quotes".';
     // const cleanedString = removeDoubleQuotes(stringWithQuotes);
@@ -1307,7 +1802,7 @@ const signInWithApple = async () => {
               console.log(err);
               return err;
             })
-            tt.geo.push({"images": imagesP, "color" :t[i+1], "title": t[i+2], "description": t[i+3], "id": t[i+4], "style": t[i+5], "latlng": [parseFloat(t[i+6].split(",")[0]),parseFloat(t[i+6].split(",")[1])]});
+            tt.geo.push({"images": imagesP, "color" :t[i+1], "title": t[i+2], "description": t[i+3], "id": t[i+4], "style": t[i+5], "latlng": [parseFloat(t[i+6].split(",")[0]),parseFloat(t[i+6].split(",")[1])], "sentence": t[i+7]});;
           }
         }
         console.log(tt);
@@ -1347,6 +1842,7 @@ const signInWithApple = async () => {
       }
       }).catch((err) => {
         console.log(err);
+        //Alert(err.message);
         return err;
       });
     },[]);
@@ -1369,21 +1865,31 @@ function showDice() {
   show.innerHTML = `<img src=${SendIcon} width="24px" height="24px"/>`;
 }
 
-const discover = useCallback(async ()=>{
+async function discover() {
+  var o = 0;
+  var f;
   document.querySelector('.box').innerHTML = '';
   console.log(auth.currentUser);
   if(auth.currentUser != null){
     const q = query(collection(db, "users"), where("uid", "==", auth.currentUser.uid));
+    const data = await getDoc(doc(db,"users", auth.currentUser.uid));
+    console.log(data);
+    console.log(data.data().isPremium);
+    f = data.data().isPremium;
 const querySnapshot = await getDocs(q).then((res)=>{console.log(res);return res;}).catch((err)=>{console.log(err);return err;});
+o = querySnapshot.size;
 if(!querySnapshot.empty){
+  logEvent(analytics, 'show_all');
+  //console.log(querySnapshot.size);
 querySnapshot.forEach((mapData) => {
+  //console.log(mapData.data());
 // doc.data() is never undefined for query doc snapshots
 //setList(JSON.parse(doc.data().data));
 //console.log(JSON.parse(doc.data().data));
 var g = JSON.parse(mapData.data().data);
-console.log(g);
+//console.log(g);
 var coordinateText = g.geo;
-console.log(coordinateText);
+//console.log(coordinateText);
 //var ctxt = '';
 // for(var y = 0; y < coordinateText.length;y++){
 //   ctxt += coordinateText[y].properties.title + '_' + coordinateText[y].properties.description + '_'+ coordinateText[y].geometry.coordinates[0] + '_' + coordinateText[y].geometry.coordinates[1] + '~';
@@ -1400,13 +1906,28 @@ txt3.innerHTML = `<button class="mapButton" data-id=${mapData.id}>${g.title}
 </button>`;
 $(".box").append(txt3);
 });
+} else {
+  console.log("empty");
+  document.querySelector(".box").innerHTML = `<div style="margin: auto;width: 100%;display: flex;flex-direction: column; justify-content: center; align-items: center">
+  <img style="border-radius: 1rem" src="${AppIcon}" alt="Atlas icon" width="64"/>
+  <h2 style="margin-top: 1rem">Where Your Journey Begins</h2>
+</div>`
 }
 }
+$('.mapButton').off("click");
+$('.shareButton').off("click");
+$('.deleteButton').off("click");
+$('.card').off("click");
+
 $('.mapButton').on("click", (async function(){
+  if(o > 1 && f == false){
+    setModalVisible2(true);
+    return;
+  }
   console.log("map");
   // const d = {features: []};
   var index = $(this).attr('data-id');
-  console.log(index);
+  //console.log(index);
   var data = await getDoc(doc(db,"users", index));
   data = JSON.parse(data.data().data);
   console.log(data);
@@ -1417,8 +1938,18 @@ $('.mapButton').on("click", (async function(){
   navigation.navigate('Atlas', {list: data, id: index, on: true});
 }));
 $('.shareButton').on("click", (async function(){
-  console.log("share");
-  var o = $(this).attr('data-id');
+  //console.log("share");
+  if(o > 1 && f == false){
+    setModalVisible2(true);
+    return;
+  }
+  var index = $(this).attr('data-id');
+  //var title = $(this).attr('data-title');
+  //console.log(title);
+  //sh.current = `https://askatlas.org/sharedmap?uid=${index}`;
+  //console.log(sh.current);
+  setShare(`https://askatlas.org/sharedmap?uid=${index}`);
+  //console.log(sh.current);
   //const data = await getDoc(doc(db,"users", auth.currentUser.uid));
   //var d = data.data().data[parseInt(o)];
   setModalVisible(true);
@@ -1432,40 +1963,69 @@ $('.shareButton').on("click", (async function(){
   //   } else {
   //     return ;
   // }
+  logEvent(analytics, 'share_button_click');
+  return;
 }));
 
 $('.deleteButton').on("click", (async function(){
   var o = $(this).attr('data-id');
   console.log(o);
-  deleteDoc(doc(db,"users", o));
+  await deleteDoc(doc(db,"users", o));
+  await discover().then(()=>{
+    return ;
+  }).catch((err)=>{
+    console.log(err);
+    Alert.alert('There was an error processing your request. Please try again', 'Error', [
+      {text: 'OK', onPress: () => logEvent(analytics, 'error_delete_map_item')},
+    ]);
+    return err;
+  });
   // var data = await getDoc(doc(db,"users", auth.currentUser.uid));
   // data = JSON.parse(data.data().data);
   // console.log(data);
   // data.splice(parseInt(o),1);
   const userRef = doc(db, "users", auth.currentUser.uid);
+  logEvent(analytics, 'delete_button');
   return await updateDoc(userRef, {
     lastLoggedIn: serverTimestamp()
   });
-  discover();
-  
 }));
 
 
 $('.card').on("click", (async function(){
   console.log("card");
+  if(o > 1 && f == false){
+    setModalVisible2(true);
+    return;
+  }
   var title = $(this).attr('data-title'); 
   var description = $(this).attr('data-description');
   hideDice();
-        return await generateMarkers(`${title}: ${description}`).then(()=>{
+  setDisabled(true);
+        await generateMarkers(`${title}: ${description}`).then(()=>{
+          setDisabled(false);
           return showDice();
         }).catch((err)=>{
           console.log(err);
+          setDisabled(false);
           showDice();
           return ;
         });
-  discover();
+  logEvent(analytics, 'card_button');
+  return await discover().then(()=>{
+    setDisabled(false);
+    return ;
+  }).catch((err)=>{
+    console.log(err);
+    setDisabled(false);
+    Alert.alert('There was an error processing your request. Please try again', 'Error', [
+      {text: 'OK', onPress: () => logEvent(analytics, 'error_card_map_item')},
+    ]);
+    return err;
+  });
 }));
-})
+
+}
 
     useEffect(async ()=>{
       onAuthStateChanged(auth, (user) => {
@@ -1478,6 +2038,7 @@ $('.card').on("click", (async function(){
         const q = query(collection(db, "users"), where("uid", "==", auth.currentUser.uid));
 const querySnapshot = await getDocs(q).then((res)=>{console.log(res);return res;}).catch((err)=>{console.log(err);return err;});
 if(!querySnapshot.empty){
+  logEvent(analytics, 'show_all');
 querySnapshot.forEach((mapData) => {
   // doc.data() is never undefined for query doc snapshots
   //setList(JSON.parse(doc.data().data));
@@ -1503,9 +2064,14 @@ querySnapshot.forEach((mapData) => {
     console.log("hello");
     $(".box").append(txt3);
 });
+    } else {
+      $(".box").innerHTML = `<div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
+      <img src={AppIcon} alt="Atlas icon" width="128"/>
+      <h1>Where Your Journey Begins</h1>
+    </div>`
     }
   }
-      var suggestions = [
+var suggestions = [
         {
           "category": "Beauty",
           "text": "Explore beauty secrets from the streets of Milan to the spas of Seoul."
@@ -2160,6 +2726,7 @@ querySnapshot.forEach((mapData) => {
 
       $('.mapButton').on("click", (async function(){
         console.log("map");
+        logEvent(analytics, 'atlas_button');
         // const d = {features: []};
         var index = $(this).attr('data-id');
         // console.log(index);
@@ -2174,7 +2741,9 @@ querySnapshot.forEach((mapData) => {
       }));
       $('.shareButton').on("click", (async function(){
         console.log("share");
+        logEvent(analytics, 'share_button');
         var o = $(this).attr('data-id');
+
         //const data = await getDoc(doc(db,"users", auth.currentUser.uid));
         //var d = data.data().data[parseInt(o)];
         setModalVisible(true);
@@ -2191,68 +2760,238 @@ querySnapshot.forEach((mapData) => {
       }));
   
       $('.deleteButton').on("click", (async function(){
+        logEvent(analytics, 'delete_map_item');
         var o = $(this).attr('data-id');
         console.log(o);
-        deleteDoc(doc(db,"users", o));
+        await deleteDoc(doc(db,"users", o));
         // var data = await getDoc(doc(db,"users", auth.currentUser.uid));
         // data = JSON.parse(data.data().data);
         // console.log(data);
         // data.splice(parseInt(o),1);
+        await discover().then(()=>{
+          //console.log("discover");
+          return;
+        }).catch((err)=>{
+          console.log(err);
+          Alert.alert('There was an error processing your request. Please try again.', 'Error', [
+            {text: 'OK', onPress: () => {logEvent(analytics, 'error_delete_map_item');}},
+          ]);
+          return err;
+        })
         const userRef = doc(db, "users", auth.currentUser.uid);
         return await updateDoc(userRef, {
           lastLoggedIn: serverTimestamp()
         });
-        discover();
         
       }));
   
   
       $('.card').on("click", (async function(){
         console.log("card");
+        logEvent(analytics, 'clicked_on_card');
         var title = $(this).attr('data-title'); 
         var description = $(this).attr('data-description');
         hideDice();
-              return await generateMarkers(`${title}: ${description}`).then(()=>{
+        setDisabled(true);
+              await generateMarkers(`${title}: ${description}`).then(()=>{
+                setDisabled(false);
                 return showDice();
               }).catch((err)=>{
+                setDisabled(false);
                 console.log(err);
                 showDice();
+                Alert.alert('There was an error processing your request. Please try again', 'Error', [
+                  {text: 'OK', onPress: () => logEvent(analytics, 'error_card_map_item')},
+                ]);
                 return ;
               });
-        discover();
+        await discover().then(()=>{
+          setDisabled(false);
+          //console.log("discover");
+          return;
+        }).catch((err)=>{
+          setDisabled(false);
+          console.log(err);
+          Alert.alert('There was an error processing your request. Please try again', 'Error', [
+            {text: 'OK', onPress: () => logEvent(analytics, 'error_card_map_item')},
+          ]);
+          return err;
+        })
       }));
     },[]);
     discover();
-    const shareUrl = 'https://askatlas.org/share/id=1234';
-    const exampleImage = 'assets/icon.png'
+    const exampleImage = 'assets/icon.png';
+    function copyToClipboard() {
+      const userId = auth.currentUser.uid;
+      // const textarea = document.createElement('textarea');
+      // textarea.value = userId;
+      // document.body.appendChild(textarea);
+      // textarea.select();
+      // document.execCommand('copy');
+      // document.body.removeChild(textarea);
+      navigator.clipboard.writeText(userId);
+      logEvent(analytics, 'copy_uid');
+      return;
+  }
     return (
       <>
       <div className='mapContainer' style={{paddingBottom: 0, bottom: 0}}>
         <div className='operations'>
           <div className="box">
+            
           {/* <button class="shareButton" onClick={() => {setModalVisible(true)}}><img width="36" height="36" src="https://img.icons8.com/material-outlined/48/copy.png" alt="copy"/>
     </button> */}
             </div>
         </div>
       </div>
       <Modal
+  animationType="slide"
+  transparent={true}
+  visible={modalVisible2}
+  onShow={()=>{
+    function gtag_report_conversion(url) {
+      var callback = function () {
+        if (typeof(url) != 'undefined') {
+          window.location = url;
+        }
+      };
+      gtag('event', 'purchase', {
+          'send_to': 'AW-16493182687/kTjKCMrc7ZsZEN_9x7g9',
+          'value': 19.99,
+          'currency': 'USD',
+          'transaction_id': '',
+          'event_callback': callback
+      });
+      gtag('event', 'conversion', {
+        'send_to': 'AW-16493182687/SzM6CN_LlKIZEN_9x7g9',
+        'event_callback': callback
+    });
+      return false;
+    }
+    document.addEventListener('click', function(e) {
+      if (e.target.matches('a[href="https://buy.stripe.com/28o28y37S5G24la148"] *')) {
+        gtag('event', 'purchase', {
+          'send_to': 'G-22HJ6GSR49/kTjKCMrc7ZsZEN_9x7g9'
+        });
+        gtag_report_conversion("https://buy.stripe.com/28o28y37S5G24la148");
+      }
+
+      if (e.target.matches('a[href="https://buy.stripe.com/7sI6oOgYIc4q9Fu3ch"] *')) {
+        gtag('event', 'purchase', {
+          'send_to': 'G-22HJ6GSR49/kTjKCMrc7ZsZEN_9x7g9'
+        });
+        gtag_report_conversion("https://buy.stripe.com/7sI6oOgYIc4q9Fu3ch");
+      }
+    })
+  }}
+  onRequestClose={() => {
+    setModalVisible2(!modalVisible2);
+  }}>
+  <View style={styles.centeredView}>
+    <View style={styles.productView}>
+    <ScrollView>
+      <>
+      <div class="subscription-page-body">
+      <div className="topBar2">
+        <div className="topBarClose">
+          <img height="36" width="36" src={CloseButton} alt="close" onClick={() => setModalVisible2(!modalVisible2)}/>
+        </div>
+      </div>
+      <div class="subscription-container">
+      <h1 class="subscription-page-heading">Elevate Your AI Experience with Ask Atlas Premium – Subscribe Now!</h1>
+   
+   <div class="subscription-plans-container">
+       <div class="subscription-plan-card">
+           <h2>Monthly</h2>
+           <p class="subscription-plan-price">$9.99/month</p>
+           <ul class="subscription-plan-features">
+               <li class="subscription-plan-feature">Ad-free browsing</li>
+               <li class="subscription-plan-feature">Exclusive premium content</li>
+               <li class="subscription-plan-feature">Advanced app features</li>
+               <li class="subscription-plan-feature">Priority customer support</li>
+               <li class="subscription-plan-feature">7-Day Free Trial</li>
+           </ul>
+           <div class="user-id-container">
+        <button class="copy-button" onClick={()=>{copyToClipboard()}}>Copy UID</button>
+    </div>
+           <a id="month-plan" class="subscription-plan-button" href="https://buy.stripe.com/28o28y37S5G24la148">Subscribe Now</a>
+       </div>
+       
+       <div class="subscription-plan-card">
+           <span class="subscription-plan-most-popular">Best Value</span>
+           <h2>Annual</h2>
+           <p class="subscription-plan-price">$49.99/year</p>
+           <ul class="subscription-plan-features">
+               <li class="subscription-plan-feature">Everything in Monthly</li>
+               <li class="subscription-plan-feature">7 months free (~60% off)</li>
+               <li class="subscription-plan-feature">7-Day Free Trial</li>
+           </ul>
+           <div class="user-id-container">
+        <button class="copy-button" onClick={()=>{copyToClipboard()}}>Copy UID</button>
+    </div>
+           <a id="year-plan" class="subscription-plan-button" href="https://buy.stripe.com/7sI6oOgYIc4q9Fu3ch">Subscribe Now</a>
+       </div>
+   </div>
+  </div>
+  <div class="faq">
+  <br></br>
+        <h3>Frequently Asked Questions</h3>
+        <p><strong>Q: Is it secure?</strong><br></br>
+        A: Absolutely. We use industry-standard encryption and security practices to keep your information safe.
+        </p>
+        <br></br>
+        <p><strong>Q: Can I cancel my subscription at any time?</strong><br></br>
+A: Yes, absolutely! We believe in providing flexibility to our subscribers. You can easily cancel your subscription at any time from your account settings. There are no long-term commitments or contracts, so you can cancel whenever you need to without any hassle.
+</p>
+<br></br>
+<p><strong>Q: Is my payment information secure?</strong><br></br>
+A: Your security is our top priority. We use industry-standard encryption and advanced security practices to protect your payment information. We never store your full credit card details, and all transactions are processed through trusted, third-party payment gateways. You can have peace of mind knowing that your financial data is safe with us.
+</p>
+<br></br>
+<p><strong>Q: What happens after I subscribe?</strong><br></br>
+A: Once you complete your subscription, you'll instantly gain access to all the premium features and exclusive content. You can start exploring ad-free, unlocking advanced functionality, and enjoying priority support right away. We'll also send you a welcome email with additional information and tips to help you make the most of your premium experience.
+</p>
+<br></br>
+<p><strong>Q: Can I change my subscription plan later?</strong><br></br>
+A: Yes, you can easily switch between the monthly and yearly plans at any time. If you start with a monthly plan and decide you want to upgrade to the yearly plan for better value, simply visit your account settings and make the change. We'll prorate the charges based on your remaining subscription period, so you won't lose any money.
+</p>
+<br></br>
+<p><strong>Q: What if I'm not satisfied with my premium subscription?</strong><br></br>
+A: We're confident that you'll love the premium features and find great value in your subscription. However, if for any reason you're not completely satisfied, we offer a 30-day money-back guarantee. If you cancel within the first 30 days, we'll issue a full refund, no questions asked. We want you to have a fantastic experience and will work hard to ensure your satisfaction.
+</p>
+<br></br>
+<p><strong>Q: How can I get support if I have questions or need help?</strong><br></br>
+A: As a premium subscriber, you'll have access to our dedicated priority support team. If you have any questions, encounter any issues, or need assistance, simply reach out to our support staff through the provided channels. We're here to help you and ensure that you have a smooth and enjoyable premium experience.
+</p>
+    </div>
+
+    <div class="guarantee">
+        All plans come with our 30-day money-back guarantee. Try risk-free!
+    </div>
+   </div>
+      </>
+      </ScrollView>
+    </View>
+  </View>
+</Modal>
+      <Modal
               {...handlers}
               animationType="slide"
               transparent={true}
               visible={modalVisible}
-              style={{height: '60%', width: '100%'}}
+              style={{height: 'fit-content', width: '100%'}}
               onRequestClose={() => {
                 setModalVisible(!modalVisible);
               }}>
                 <View style={styles.centeredView}>
-                  <View style={styles.modalView}>
+                  <View style={styles.shareView}>
                 <>
-      <div className="Demo__container">
-        <div style={{display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center'}}>
+      <div style={{display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center'}}>
       <div className="topBarLeft"></div>
-        <h3 style={{marginBottom: "1rem", borderBottom: '1px solid lightgrey', lineHeight: '2.5rem'}}>Send To</h3>
+        <h3 style={{marginBottom: "1rem", borderBottom: '1px solid lightgrey', lineHeight: '2.5rem', width: '100vw', display: 'flex', justifyContent: 'center'}}>Share To</h3>
         </div>
-      <div className="Demo__some-network">
+      <div className="Demo__container" style={{width: "99vw", display: 'flex', flexDirection: 'row', overflowX: "scroll"}}>
+      <div className="Demo__some-network" style={{marginLeft: '1rem'}}>
         <FacebookShareButton url={shareUrl} className="Demo__some-network__share-button">
           <FacebookIcon size={32} round />
         </FacebookShareButton>
@@ -2483,7 +3222,7 @@ querySnapshot.forEach((mapData) => {
         <div className='social_title'>Instapaper</div>
       </div>
 
-      <div className="Demo__some-network">
+      <div className="Demo__some-network" style={{marginRight: '1rem'}}>
         <HatenaShareButton
           url={shareUrl}
           title={title}
@@ -2500,30 +3239,50 @@ querySnapshot.forEach((mapData) => {
     </>
     </View>
     </View>
-              </Modal>
+    </Modal>
       <div class="scrolling-wrapper">
       </div>
       <div>
               <div className='show'>
                 <div className='showInput'>
-            <TextInput style={styles.input} multiline={true} rows={1} maxLength={1000} value={text} onChangeText={(text) => setText(text)} placeholder="Enter text here..." />
+            <TextInput ref={usertext} style={styles.input} multiline={true} rows={1} maxLength={1000} onChangeText={(text) => {usertext.current.value = text;}} placeholder="Enter text here..."/>
             </div>
             <div className="delete_point">
         <button className="button-38" disabled={disabled} onClick={
           async ()=>{
             hideDice();
-            return await generateMarkers(text).then(()=>{
+            setDisabled(true);
+            // var t = "";
+            // var userLat;
+            // var userLong;
+            // if ("geolocation" in navigator) {
+            //   navigator.geolocation.getCurrentPosition((position) => {
+            //     userLat = position.coords.latitude
+            //     userLong = position.coords.longitude;
+            //   });
+            //   t = text + ". The user is location at longitude, latitude coordinates : " + userLong + "," + userLat + ", respectively";
+            // } else {
+            //   t = text;
+            // }
+            await generateMarkers(usertext.current.value).then(()=>{
+              setDisabled(false);
               return showDice();
             }).catch((err)=>{
               console.log(err);
               setDisabled(false);
               showDice();
               Alert.alert('There was an error processing your request. Please try again in a few minutes.', 'Error', [
-                {text: 'OK', onPress: () => console.log('OK Pressed')},
+                {text: 'OK', onPress: () => logEvent(analytics, 'error_send_map_item')},
               ]);
               return err;
             })
-            discover();
+            return await discover().then((res)=>{
+              console.log(res);
+              return res;
+            }).catch((err)=>{
+              console.log(err);
+              return err;
+            })
           }}>
           <p className="send">                    
             <img src={SendIcon} style={{width:"24px",height:"24px", borderRadius: "1rem"}}/>
@@ -2549,8 +3308,8 @@ export default function App() {
   useEffect(async ()=>{
     async function Initialize(user) {
       const exist = await getDoc(doc(db, 'users', user.uid));
-      console.log(user.uid);
-      console.log(exist.exists());
+      // console.log(user.uid);
+      // console.log(exist.exists());
       await setDoc(doc(db, 'users', user.uid), {
         email: null,
         data: '[]',
@@ -2575,7 +3334,7 @@ export default function App() {
         return res;
       }).catch((err)=>{
         console.log(err);
-        console.log("2332");
+        //console.log("2332");
         return err;
       })
       // Signed in..
@@ -2584,13 +3343,36 @@ export default function App() {
     .catch((error) => {
       const errorCode = error.code;
       const errorMessage = error.message;
-      console.log("2340");
+      //console.log("2340");
       return error;
       // ...
     });
   }
 
   await signinanon();
+  logEvent(analytics, 'app_login');
+  function getOS() {
+    const userAgent = window.navigator.userAgent,
+        platform = window.navigator?.userAgentData?.platform || window.navigator.platform,
+        macosPlatforms = ['macOS', 'Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'],
+        windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'],
+        iosPlatforms = ['iPhone', 'iPad', 'iPod'];
+    let os = null;
+  
+    if (macosPlatforms.indexOf(platform) !== -1) {
+      os = 'Mac OS';
+    } else if (iosPlatforms.indexOf(platform) !== -1) {
+      os = 'iOS';
+    } else if (windowsPlatforms.indexOf(platform) !== -1) {
+      os = 'Windows';
+    } else if (/Android/.test(userAgent)) {
+      os = 'Android';
+    } else if (/Linux/.test(platform)) {
+      os = 'Linux';
+    }
+  
+    return os;
+  }
   return ;
   },[user]);
   return (
