@@ -132,13 +132,7 @@ import {
   XIcon,
 } from "react-share";
 const firebaseConfig = {
-  apiKey: "AIzaSyAz5xN37WxbRT6DyW6mQxD700dlpXGTQns",
-  authDomain: "mapmyconcern.firebaseapp.com",
-  projectId: "mapmyconcern",
-  storageBucket: "mapmyconcern.appspot.com",
-  messagingSenderId: "981359555560",
-  appId: "1:981359555560:web:309a9778efa597dffdea5d",
-  measurementId: "G-22HJ6GSR49"
+
 };
 
 const app = initializeApp(firebaseConfig);
@@ -147,15 +141,15 @@ const auth = getAuth(app);
 const analytics = getAnalytics();
 import TagManager from 'react-gtm-module'
 const tagManagerArgs = {
-  gtmId: 'G-22HJ6GSR49',
+  gtmId: 'G',
 }
 const tagManagerArgs2 = {
-  gtmId: 'AW-16493182687',
+  gtmId: 'AW',
 }
 //AW-16493182687
 TagManager.initialize(tagManagerArgs)
 TagManager.initialize(tagManagerArgs2)
-const api_key_geolocation = "1e697e8285b34190a228cd2836c338a6";
+const api_key_geolocation = "";
 const styles = StyleSheet.create({
   centeredView: {
     flex: 1,
@@ -356,7 +350,7 @@ const MapScreen = ({navigation, route}) => {
 // let [text, setText] = useState('');
   // Initialize map when component mounts
   async function get_user_location() {
-    await fetch(`https://api.ipgeolocation.io/ipgeo?apiKey=1e697e8285b34190a228cd2836c338a6`, {
+    await fetch(`https://api.ipgeolocation.io/ipgeo?apiKey=`, {
       method: 'GET',
       mode: 'cors',
       headers: {
