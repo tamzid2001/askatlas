@@ -29,3 +29,11 @@ Looking ahead, I envision expanding the app's capabilities even further, incorpo
 Developing Ask Atlas AI has been a transformative journey, combining my passion for technology and learning. Through this project, I have not only created a powerful AI-driven learning tool but also grown as a developer and innovator. I am proud of the challenges I overcame and the skills I acquired along the way.
 
 I invite you to embark on your own learning adventure with Ask Atlas AI. Download the app today and experience the joy of effortless knowledge discovery. Together, let's ignite curiosity, embrace learning, and unlock the limitless potential of the human mind.
+
+![DALLE](https://github.com/tamzid2001/askatlas/assets/11586864/e9e6487d-72fe-43c5-bafb-0faf6f1515ad)
+![5](https://github.com/tamzid2001/askatlas/assets/11586864/079e21b0-d80e-4cc2-9d86-6d2c1b4cb878)
+![4](https://github.com/tamzid2001/askatlas/assets/11586864/3814dab3-77d0-4a22-8f5a-3bd6495ca6c8)
+![3](https://github.com/tamzid2001/askatlas/assets/11586864/0a352f30-d67e-4dc4-982c-6aa1f417fe3b)
+![2](https://github.com/tamzid2001/askatlas/assets/11586864/e15f9bd3-770e-4080-bf6e-f6ac9d6476c7)
+![1](https://github.com/tamzid2001/askatlas/assets/11586864/6cd59db4-bab8-46af-ad4e-a0e12d20a071)
+
