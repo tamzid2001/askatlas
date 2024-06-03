@@ -1,3 +1,15 @@
+## Useful Links
+
+- [GitHub Repository](https://github.com/tamzid2001/askatlas)
+- [Ask Atlas Official Website](https://askatlas.org/)
+- [Ask Atlas AI on Apple App Store](https://apps.apple.com/us/app/ask-atlas-ai/id6477133776)
+- [Map My Concern](https://mapmyconcern.web.app/)
+- [Ask Atlas AI YouTube Channel](http://www.youtube.com/@AskAtlasAI)
+
+## Support
+
+- [PayPal](https://paypal.me/tamzidullah?country.x=US&locale.x=en_US)
+
 # Ask Atlas AI: Revolutionizing Knowledge Discovery
 
 ## Inspiration Behind the Project
