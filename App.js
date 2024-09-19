@@ -1301,7 +1301,7 @@ const BlogScreenHome = ({navigation, route}) => {
       {filteredBlogContent.map(blog => (
             <button onClick={() => navigation.navigate("Content", {list: blog})} class="card_blog" style={{width: '95%', margin: 'auto', padding: '0px', marginTop: '1rem'}}>
             <div class="card__header">
-              <img src={blog.images != undefined ? blog.images[0].url:"https://plus.unsplash.com/premium_photo-1661339265887-be15949790ff?q=80&w=2369&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"} alt="card__image" class="card__image" width="100vw"></img>
+              <img src={blog.images != undefined ? blog.images[0].url:"https://plus.unsplash.com/premium_photo-1661339265887-be15949790ff?q=80&w=2369&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"} alt="card__image" class="card__image" width="100%"></img>
             </div>
             {/* <iframe width="100%" height="315" src="https://www.youtube.com/embed/JDCIGcAETEg?si=5rBbXjqFeQ98thMw" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe> */}
             <div class="card__body">
